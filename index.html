@@ -1,0 +1,1705 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="application-name" content="ESSER STRONG">
+<meta name="apple-mobile-web-app-title" content="ESSER STRONG">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#24442c">
+<title>ESSER STRONG</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+/* =====================================================
+   CSS BAGIAN 1 : VARIABEL
+   ===================================================== */
+:root{
+  /* === PALET ESSER STRONG: lumut, tanduk amber, tanah liat, sungai teal === */
+  --bg:#e8dfc2; --ink:#201a10; --cream:#f3ecd4; --white:#fff;
+  --cyan:#1f8a8c; --cyan-d:#125f61;      /* teal sungai */
+  --yellow:#e8972c; --yellow-d:#b96f12;  /* amber tanduk */
+  --pink:#c1440e; --pink-d:#8c3109;      /* tanah liat / rust */
+  --purple:#3f6b4a; --purple-d:#24442c;  /* lumut tua */
+  --green:#4cd964; --gray:#b9b9b9; --red:#ef4444;
+  --font-main:"JetBrains Mono",ui-monospace,monospace;
+  --font-pixel:"Silkscreen","Space Mono",monospace;
+  --border:3px solid var(--ink); --radius:18px; --radius-sm:12px;
+  --shadow:0 5px 0 var(--ink), 0 5px 14px rgba(0,0,0,.25);
+  --shadow-sm:0 3px 0 var(--ink);
+  --gap:12px; --pad:14px;
+}
+
+/* =====================================================
+   CSS BAGIAN 2 : DASAR + BACKGROUND BERTEKSTUR
+   ===================================================== */
+*,*::before,*::after{box-sizing:border-box}
+body{
+  margin:0;color:var(--ink);font-family:var(--font-main);font-weight:500;font-size:15px;line-height:1.4;-webkit-font-smoothing:antialiased;
+  min-height:100vh;position:relative;overflow-x:hidden;
+  /* LAPISAN 1 : background penuh (gradasi tanah + dot texture) */
+  background-color:var(--bg);
+  background-image:
+    radial-gradient(circle, rgba(27,27,27,.07) 1.4px, transparent 1.4px),
+    linear-gradient(165deg,#efe6c9 0%,#e3d7ad 45%,#d8c891 100%);
+  background-size:16px 16px, 100% 100%;
+  background-attachment:fixed;
+}
+/* LAPISAN 2 : background kecil mengapung (blob lumut & tanduk, blur) */
+body::before,body::after{
+  content:"";position:fixed;border-radius:50%;filter:blur(50px);z-index:0;pointer-events:none;
+  animation:float-blob 14s ease-in-out infinite;
+}
+body::before{
+  width:260px;height:260px;top:-60px;left:-70px;
+  background:radial-gradient(circle,rgba(63,107,74,.45),transparent 70%);
+}
+body::after{
+  width:300px;height:300px;bottom:-80px;right:-90px;
+  background:radial-gradient(circle,rgba(232,151,44,.4),transparent 70%);
+  animation-delay:-7s;
+}
+@keyframes float-blob{
+  0%,100%{transform:translate(0,0) scale(1)}
+  50%{transform:translate(18px,-22px) scale(1.08)}
+}
+h1,h2,p{margin:0}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;cursor:pointer;background:none;border:none}
+input{font:inherit;color:inherit}
+small{font-family:var(--font-pixel);font-size:11.5px;letter-spacing:.04em}
+img{display:block;width:100%;height:100%;object-fit:cover}
+.app{max-width:480px;margin:0 auto;padding:calc(env(safe-area-inset-top,0px) + 14px) 14px 100px;display:flex;flex-direction:column;gap:var(--gap);position:relative;z-index:1}
+
+/* =====================================================
+   CSS BAGIAN 3 : KOMPONEN UMUM
+   ===================================================== */
+.card{border:var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:var(--pad);position:relative}
+.card.cream{background:var(--cream)}
+.card.glow-cyan{background:linear-gradient(155deg,var(--cyan) 0%,var(--cyan-d) 100%);color:var(--ink)}
+.card.glow-pink{background:linear-gradient(155deg,var(--pink) 0%,var(--pink-d) 100%);color:var(--white)}
+.card.glow-yellow{background:linear-gradient(155deg,var(--yellow) 0%,var(--yellow-d) 100%)}
+.card.glow-purple{background:linear-gradient(155deg,var(--purple) 0%,var(--purple-d) 100%);color:var(--white)}
+
+.badge{display:inline-block;padding:2px 10px;border:2px solid var(--ink);border-radius:6px;background:var(--yellow);font-family:var(--font-pixel);font-size:11.5px;font-weight:700;box-shadow:var(--shadow-sm)}
+.chip{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 12px;border:var(--border);border-radius:var(--radius-sm);box-shadow:var(--shadow-sm);font-family:var(--font-pixel);font-size:12.5px;font-weight:700;transition:transform .12s}
+.chip.cyan{background:linear-gradient(155deg,var(--cyan),var(--cyan-d))}
+.chip.gray{background:linear-gradient(155deg,#d4d4d4,var(--gray))}
+.chip[aria-pressed="true"]{background:linear-gradient(155deg,var(--pink),var(--pink-d));color:var(--white)}
+.chip:active{transform:translateY(2px)}
+
+.section-title{display:flex;align-items:center;gap:8px;font-family:var(--font-pixel);font-size:14px;font-weight:700;margin-bottom:2px}
+.section-title .ico{width:26px;height:26px;border-radius:8px;background:var(--ink);color:var(--white);display:grid;place-items:center;font-size:15px;box-shadow:var(--shadow-sm)}
+.section-sub{font-size:12.5px;opacity:.88;margin:-4px 0 4px}
+
+/* =====================================================
+   CSS BAGIAN 4 : HEADER
+   ===================================================== */
+.topbar{display:flex;justify-content:space-between;align-items:center;
+  background:linear-gradient(135deg,var(--purple) 0%,var(--purple-d) 100%);
+  color:var(--white);border:var(--border);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:12px 14px;overflow:hidden;position:relative}
+.topbar::after{content:"";position:absolute;inset:0;
+  background:repeating-linear-gradient(135deg,rgba(255,255,255,.07) 0 10px,transparent 10px 22px);
+  pointer-events:none}
+.topbar-left{display:flex;align-items:center;gap:10px;z-index:1}
+.topbar-icon{width:36px;height:36px;border-radius:50%;background:var(--white);color:var(--purple-d);display:grid;place-items:center;font-size:19px;border:2px solid var(--ink);box-shadow:var(--shadow-sm);overflow:hidden}
+.topbar-icon img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.topbar-title{font-family:var(--font-pixel);font-size:14px;font-weight:700}
+.topbar-sub{font-size:12.5px;opacity:.9;margin-top:2px}
+.topbar .badge{z-index:1}
+
+/* =====================================================
+   CSS BAGIAN 5 : BANNER
+   ===================================================== */
+.banner{height:170px;border-radius:var(--radius);border:var(--border);box-shadow:var(--shadow);overflow:hidden;background:#111;position:relative}
+.banner img{width:100%;height:100%;object-fit:cover}
+.banner::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(0,0,0,.55),transparent 55%)}
+
+/* =====================================================
+   CSS BAGIAN 6 : QUICK STATS (home)
+   ===================================================== */
+.quick-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.qs-item{border:var(--border);border-radius:var(--radius-sm);box-shadow:var(--shadow-sm);padding:9px 6px;text-align:center}
+.qs-item b{display:block;font-size:18px;margin-top:2px}
+
+/* =====================================================
+   CSS BAGIAN 7 : MODE + TARGET INPUT
+   ===================================================== */
+.mode-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.target-box{display:flex;flex-direction:column;gap:8px}
+.target-label{font-family:var(--font-pixel);font-size:12.5px;font-weight:700;background:linear-gradient(155deg,var(--cyan),var(--cyan-d));border:var(--border);border-radius:var(--radius-sm);padding:7px 10px;box-shadow:var(--shadow-sm)}
+.target-input-wrap{display:flex;align-items:center;gap:8px;background:var(--gray);border:var(--border);border-radius:var(--radius-sm);padding:4px 12px;box-shadow:inset 0 2px 4px rgba(0,0,0,.15)}
+.target-input-wrap input{flex:1;background:transparent;border:none;outline:none;padding:9px 0;font-size:14.5px;color:var(--ink)}
+.target-input-wrap input::placeholder{color:#555}
+.target-input-wrap.valid{background:#d9f7df}
+.target-input-wrap.invalid{background:#fbd5d5}
+.target-msg{font-size:11.5px;font-family:var(--font-pixel);min-height:10px}
+.target-msg.ok{color:#1d7a3a}
+.target-msg.bad{color:#b91c1c}
+
+/* =====================================================
+   CSS BAGIAN 8 : SELECT PAYLOAD
+   ===================================================== */
+.payload-head{display:flex;justify-content:space-between;align-items:center}
+.payload-select{background:var(--ink);color:var(--white);border:2px solid var(--ink);border-radius:8px;padding:3px 10px;font-family:var(--font-pixel);font-size:11.5px;font-weight:700}
+.payload-grid{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:8px}
+.payload-card{border:var(--border);border-radius:var(--radius-sm);padding:9px;display:flex;flex-direction:column;justify-content:space-between;min-height:78px;text-align:left;width:100%;transition:transform .12s;box-shadow:var(--shadow-sm)}
+.payload-card:active{transform:translateY(2px)}
+.payload-card.active{background:linear-gradient(155deg,var(--pink),var(--pink-d));color:var(--white)}
+.payload-card.idle{background:var(--white)}
+.payload-tag{font-family:var(--font-pixel);font-size:10.5px;font-weight:700}
+.payload-name{font-size:12.5px;font-weight:700;margin-top:4px}
+.payload-status{align-self:flex-start;margin-top:6px;padding:2px 8px;border-radius:6px;font-family:var(--font-pixel);font-size:10.5px;font-weight:700}
+.payload-status.on{background:var(--ink);color:var(--white)}
+.payload-status.off{background:var(--gray);color:var(--ink)}
+
+/* =====================================================
+   CSS BAGIAN 9 : TOMBOL AKSI
+   ===================================================== */
+.run-btn{width:100%;padding:13px;border:var(--border);border-radius:var(--radius-sm);box-shadow:var(--shadow);
+  background:linear-gradient(155deg,#2b2b2b,var(--ink));color:var(--white);
+  font-family:var(--font-pixel);font-size:14.5px;font-weight:700;letter-spacing:.04em;transition:transform .1s}
+.run-btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.run-btn:disabled{opacity:.45;cursor:not-allowed}
+
+/* =====================================================
+   CSS BAGIAN 10 : SERVER CONSOLE
+   ===================================================== */
+.console-head{display:flex;justify-content:space-between;align-items:center}
+.console-title{display:flex;align-items:center;gap:8px}
+.console-icon{width:26px;height:26px;border-radius:8px;background:linear-gradient(155deg,var(--cyan),var(--cyan-d));border:2px solid var(--ink);display:grid;place-items:center;font-size:14px;box-shadow:var(--shadow-sm)}
+.console-name{font-family:var(--font-pixel);font-size:14.5px;font-weight:700}
+.console-sub{font-size:11.5px;opacity:.88}
+.live-pill{display:flex;align-items:center;gap:6px;border:2px solid var(--ink);border-radius:999px;padding:3px 10px;font-family:var(--font-pixel);font-size:11.5px;font-weight:700;box-shadow:var(--shadow-sm)}
+.live-pill.on{background:var(--green)}
+.live-pill.off{background:var(--gray)}
+.live-dot{width:8px;height:8px;border-radius:50%;background:var(--pink);border:1px solid var(--ink)}
+.live-pill.on .live-dot{animation:blink 1s infinite}
+@keyframes blink{50%{opacity:.2}}
+.live-pill.off .live-dot{background:#777;animation:none}
+.console-screen{margin-top:8px;height:170px;overflow-y:auto;background:radial-gradient(circle at 20% 0%,#161616,#060606);color:#9fe870;border:2px solid var(--ink);border-radius:var(--radius-sm);padding:10px;font-size:12.5px;line-height:1.7;box-shadow:inset 0 0 20px rgba(0,0,0,.6)}
+.console-line{white-space:nowrap}
+.console-time{color:#6c6c6c}
+.console-ok{color:#9fe870}
+.console-warn{color:#ffd166}
+.console-info{color:#5fc9f3}
+.console-err{color:#ff6b6b}
+.clear-btn{font-family:var(--font-pixel);font-size:11.5px;background:var(--white);border:2px solid var(--ink);border-radius:6px;padding:4px 9px;margin-top:8px;box-shadow:var(--shadow-sm)}
+
+/* =====================================================
+   CSS BAGIAN 11 : TOOL LIST (Nomor Tools / CS)
+   ===================================================== */
+.tool-card{border:var(--border);border-radius:var(--radius-sm);box-shadow:var(--shadow-sm);background:var(--white);overflow:hidden}
+.tool-head{display:flex;align-items:center;gap:10px;padding:11px 12px;width:100%;text-align:left}
+.tool-ico{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;font-size:17px;border:2px solid var(--ink);flex-shrink:0;box-shadow:var(--shadow-sm)}
+.tool-ico.c1{background:linear-gradient(155deg,var(--cyan),var(--cyan-d))}
+.tool-ico.c2{background:linear-gradient(155deg,var(--yellow),var(--yellow-d))}
+.tool-ico.c3{background:linear-gradient(155deg,var(--pink),var(--pink-d));color:#fff}
+.tool-ico.c4{background:linear-gradient(155deg,var(--purple),var(--purple-d));color:#fff}
+.tool-ico.c5{background:linear-gradient(155deg,var(--green),#2fae4a)}
+.tool-info{flex:1}
+.tool-info b{display:block;font-size:14.5px}
+.tool-info small{opacity:.85;font-size:11px}
+.tool-chev{font-size:16px;transition:transform .15s}
+.tool-card.open .tool-chev{transform:rotate(90deg)}
+.tool-body{display:none;padding:0 12px 12px;flex-direction:column;gap:8px}
+.tool-card.open .tool-body{display:flex}
+.tool-input-row{display:flex;gap:8px}
+.tool-input-row .target-input-wrap{flex:1;padding:2px 10px}
+.tool-go{padding:0 14px;border:var(--border);border-radius:var(--radius-sm);background:var(--ink);color:#fff;font-family:var(--font-pixel);font-size:12.5px;font-weight:700;box-shadow:var(--shadow-sm);flex-shrink:0}
+.tool-go:disabled{opacity:.4}
+.tool-result{display:none;background:var(--cream);border:2px solid var(--ink);border-radius:var(--radius-sm);padding:9px 10px;font-size:13px;gap:4px;flex-direction:column}
+.tool-result.show{display:flex}
+.tool-result-row{display:flex;justify-content:space-between;gap:8px}
+.tool-result-row b{font-size:13px}
+.tool-note{font-size:11px;opacity:.82;font-style:italic}
+
+/* =====================================================
+   CSS BAGIAN 12 : KONTAK (CS tab)
+   ===================================================== */
+.contact-card{display:flex;align-items:center;gap:12px;padding:12px;border:var(--border);border-radius:var(--radius-sm);box-shadow:var(--shadow-sm)}
+.contact-card b{display:block;font-size:14.5px}
+.contact-card small{opacity:.88;font-size:11.5px}
+.contact-arrow{margin-left:auto;font-size:18px}
+
+/* =====================================================
+   CSS BAGIAN 13 : NAVIGASI BAWAH (TAB)
+   ===================================================== */
+.bottom-nav{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 10px);width:min(452px,calc(100% - 28px));display:flex;padding:6px;background:var(--cream);border:var(--border);border-radius:var(--radius);box-shadow:var(--shadow);z-index:1}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:1px;padding:7px 0;border:2px solid transparent;border-radius:var(--radius-sm);opacity:.55;flex:1;transition:background .15s,opacity .15s}
+.nav-item span{font-size:18px}
+.nav-item[aria-selected="true"]{background:linear-gradient(155deg,var(--cyan),var(--cyan-d));border-color:var(--ink);opacity:1;box-shadow:var(--shadow-sm)}
+.tab-panel{display:none}
+.tab-panel.is-active{display:flex;flex-direction:column;gap:var(--gap)}
+
+/* =====================================================
+   CSS BAGIAN 14 : LOGIN SCREEN (berlapis, logo besar)
+   ===================================================== */
+#login-screen{position:fixed;inset:0;z-index:50;display:flex;padding:calc(env(safe-area-inset-top,0px) + 24px) 16px calc(env(safe-area-inset-bottom,0px) + 24px);overflow-y:auto;
+  background:
+    radial-gradient(circle at 50% 18%, rgba(232,151,44,.28), transparent 46%),
+    radial-gradient(circle, rgba(27,27,27,.07) 1.4px, transparent 1.4px),
+    linear-gradient(165deg,#efe6c9 0%,#e3d7ad 45%,#d4c386 100%);
+  background-size:100% 100%,16px 16px,100% 100%}
+.login-blob{position:fixed;border-radius:50%;filter:blur(55px);z-index:0;pointer-events:none;animation:float-blob 14s ease-in-out infinite}
+.login-blob.b1{width:240px;height:240px;top:-50px;right:-60px;background:radial-gradient(circle,rgba(193,68,14,.4),transparent 70%)}
+.login-blob.b2{width:260px;height:260px;bottom:-70px;left:-70px;background:radial-gradient(circle,rgba(31,138,140,.4),transparent 70%);animation-delay:-6s}
+/* bentuk dekor di belakang kartu */
+.login-deco{position:fixed;z-index:0;pointer-events:none;border:3px solid var(--ink);box-shadow:var(--shadow-sm)}
+.login-deco.d1{width:54px;height:54px;border-radius:16px;background:linear-gradient(155deg,var(--yellow),var(--yellow-d));top:12%;left:8%;transform:rotate(-14deg)}
+.login-deco.d2{width:38px;height:38px;border-radius:50%;background:linear-gradient(155deg,var(--cyan),var(--cyan-d));bottom:14%;right:10%}
+.login-deco.d3{width:26px;height:26px;border-radius:8px;background:linear-gradient(155deg,var(--pink),var(--pink-d));top:22%;right:12%;transform:rotate(18deg)}
+
+.login-card{position:relative;z-index:1;width:100%;max-width:370px;margin:auto;background:var(--cream);border:var(--border);border-radius:28px;
+  box-shadow:0 8px 0 var(--ink), 0 22px 40px rgba(36,68,44,.35);padding:0 0 22px;text-align:center;
+  animation:login-rise .7s cubic-bezier(.2,1.2,.3,1) both}
+@keyframes login-rise{from{opacity:0;transform:translateY(28px) scale(.96)}to{opacity:1;transform:none}}
+
+.login-card-top{position:relative;height:168px;border-radius:24px 24px 0 0;overflow:hidden;
+  background:linear-gradient(135deg,var(--purple) 0%,var(--purple-d) 100%)}
+.login-card-top .login-bg{position:absolute;inset:-20px;width:calc(100% + 40px);height:calc(100% + 40px);object-fit:cover;filter:blur(14px) saturate(1.2);opacity:.42;transform:scale(1.15)}
+.login-card-top::before{content:"";position:absolute;inset:0;z-index:1;
+  background:linear-gradient(180deg,rgba(36,68,44,.25),rgba(36,68,44,.75))}
+.login-card-top::after{content:"";position:absolute;inset:0;z-index:1;
+  background:repeating-linear-gradient(135deg,rgba(255,255,255,.07) 0 10px,transparent 10px 22px);pointer-events:none}
+.login-brand{position:absolute;z-index:2;left:0;right:0;top:16px;font-family:var(--font-pixel);font-size:12.5px;font-weight:700;color:#fff;letter-spacing:.14em;text-shadow:0 2px 0 rgba(0,0,0,.35)}
+
+/* logo besar menimpa tepi kartu */
+.login-avatar{position:absolute;left:50%;bottom:-58px;transform:translateX(-50%);width:128px;height:128px;border-radius:50%;z-index:3;
+  padding:6px;background:conic-gradient(from 210deg,var(--yellow),var(--pink),var(--cyan),var(--yellow));
+  border:3px solid var(--ink);box-shadow:0 6px 0 var(--ink),0 14px 22px rgba(0,0,0,.3);animation:logo-float 5s ease-in-out infinite}
+.login-avatar::before{content:"";position:absolute;inset:-12px;border-radius:50%;border:2px dashed rgba(32,26,16,.35);animation:ring-spin 24s linear infinite}
+.login-avatar .logo-inner{width:100%;height:100%;border-radius:50%;overflow:hidden;border:3px solid var(--ink);background:var(--white)}
+.login-avatar img{width:100%;height:100%;object-fit:cover}
+@keyframes logo-float{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-6px)}}
+@keyframes ring-spin{to{transform:rotate(360deg)}}
+
+.login-card-body{padding:78px 22px 0}
+.login-title{font-family:var(--font-pixel);font-size:26px;font-weight:700;letter-spacing:.04em;line-height:1;
+  text-shadow:2px 2px 0 var(--yellow)}
+.login-sub{font-size:12.5px;opacity:.88;margin-top:9px;margin-bottom:12px}
+.login-chips{display:flex;justify-content:center;gap:6px;flex-wrap:wrap;margin-bottom:18px}
+.login-chips span{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border:2px solid var(--ink);border-radius:999px;background:var(--white);font-family:var(--font-pixel);font-size:10.5px;font-weight:700;box-shadow:var(--shadow-sm)}
+.login-chips span:nth-child(1){background:linear-gradient(155deg,var(--yellow),var(--yellow-d))}
+.login-chips span:nth-child(2){background:linear-gradient(155deg,var(--cyan),var(--cyan-d));color:#fff}
+.login-chips span:nth-child(3){background:linear-gradient(155deg,var(--pink),var(--pink-d));color:#fff}
+
+.login-field{text-align:left;margin-bottom:12px}
+.login-field label{display:block;font-family:var(--font-pixel);font-size:11.5px;font-weight:700;margin-bottom:6px;opacity:.9}
+.login-input{display:flex;align-items:stretch;background:var(--white);border:var(--border);border-radius:var(--radius-sm);overflow:hidden;
+  box-shadow:inset 0 2px 0 rgba(0,0,0,.08),var(--shadow-sm);transition:box-shadow .15s,transform .15s}
+.login-input:focus-within{box-shadow:inset 0 2px 0 rgba(0,0,0,.05),0 0 0 4px rgba(232,151,44,.5),var(--shadow-sm);transform:translateY(-1px)}
+.login-input .li-ico{width:44px;display:grid;place-items:center;font-size:17px;border-right:3px solid var(--ink);background:linear-gradient(155deg,var(--cyan),var(--cyan-d))}
+.login-input.pw .li-ico{background:linear-gradient(155deg,var(--yellow),var(--yellow-d))}
+.login-input input{flex:1;min-width:0;background:transparent;border:none;outline:none;padding:12px;font-size:14.5px}
+.login-input input::placeholder{color:#6b6350}
+.login-eye{width:44px;display:grid;place-items:center;font-size:17px;border-left:2px solid rgba(32,26,16,.15);background:transparent}
+.login-eye:active{background:rgba(0,0,0,.06)}
+
+.login-btn{position:relative;width:100%;margin-top:8px;padding:14px;border:var(--border);border-radius:var(--radius-sm);overflow:hidden;
+  box-shadow:0 5px 0 var(--ink),0 10px 18px rgba(193,68,14,.35);
+  background:linear-gradient(155deg,var(--pink) 0%,var(--pink-d) 100%);color:var(--white);
+  font-family:var(--font-pixel);font-size:15px;font-weight:700;letter-spacing:.08em;transition:transform .1s,box-shadow .1s}
+.login-btn::before{content:"";position:absolute;left:0;right:0;top:0;height:45%;background:linear-gradient(180deg,rgba(255,255,255,.28),rgba(255,255,255,0))}
+.login-btn:active{transform:translateY(4px);box-shadow:0 1px 0 var(--ink)}
+.login-error{font-size:12px;font-family:var(--font-pixel);color:#b91c1c;min-height:14px;margin-top:10px}
+.login-foot{margin-top:6px;font-size:11px;opacity:.7}
+.login-btn:focus-visible,.login-eye:focus-visible{outline:3px solid var(--cyan);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){.login-card,.login-avatar,.login-avatar::before,.login-blob{animation:none}.login-avatar{transform:translateX(-50%)}}
+
+/* =====================================================
+   CSS BAGIAN 15 : AKUN / MANAJEMEN ROLE
+   ===================================================== */
+.role-pill{display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border:2px solid var(--ink);border-radius:999px;font-family:var(--font-pixel);font-size:11px;font-weight:700;box-shadow:var(--shadow-sm)}
+.role-pill.owner{background:linear-gradient(155deg,var(--pink),var(--pink-d));color:#fff}
+.role-pill.reseller{background:linear-gradient(155deg,var(--yellow),var(--yellow-d))}
+.role-pill.member{background:linear-gradient(155deg,var(--cyan),var(--cyan-d))}
+.akun-form{display:flex;flex-direction:column;gap:8px}
+.akun-row{display:flex;gap:8px}
+.akun-row .target-input-wrap{flex:1}
+.role-select{flex:1;background:var(--white);border:var(--border);border-radius:var(--radius-sm);padding:9px 10px;font-family:var(--font-main);font-size:14.5px}
+.akun-list{display:flex;flex-direction:column;gap:7px;margin-top:4px}
+.akun-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border:var(--border);border-radius:var(--radius-sm);box-shadow:var(--shadow-sm);background:var(--white)}
+.akun-item .akun-name{flex:1;font-size:14px;font-weight:700}
+.akun-item .akun-del{font-family:var(--font-pixel);font-size:11.5px;font-weight:700;background:var(--pink);color:#fff;border:2px solid var(--ink);border-radius:7px;padding:5px 8px;box-shadow:var(--shadow-sm)}
+.akun-empty{font-size:12.5px;opacity:.85;text-align:center;padding:16px 0}
+.logout-btn{color:var(--ink);font-family:var(--font-pixel);font-size:11.5px;font-weight:700;background:var(--white);border:2px solid var(--ink);border-radius:6px;padding:5px 10px;box-shadow:var(--shadow-sm);z-index:1}
+
+/* =====================================================
+   CSS BAGIAN 16 : TOKO SCRIPT
+   ===================================================== */
+.shop-grid{display:flex;flex-direction:column;gap:10px}
+.shop-card{display:flex;gap:10px;border:var(--border);border-radius:var(--radius-sm);box-shadow:var(--shadow-sm);background:var(--white);padding:10px;overflow:hidden}
+.shop-thumb{width:72px;height:72px;border-radius:var(--radius-sm);border:2px solid var(--ink);overflow:hidden;flex-shrink:0;background:var(--gray)}
+.shop-thumb img{width:100%;height:100%;object-fit:cover}
+.shop-info{flex:1;display:flex;flex-direction:column;gap:3px;min-width:0}
+.shop-name{font-size:14.5px;font-weight:700}
+.shop-desc{font-size:11.5px;opacity:.88;line-height:1.4}
+.shop-bottom{display:flex;align-items:center;justify-content:space-between;margin-top:4px}
+.shop-price{font-family:var(--font-pixel);font-size:12.5px;font-weight:700;color:var(--pink-d)}
+.shop-buy{font-family:var(--font-pixel);font-size:11.5px;font-weight:700;background:linear-gradient(155deg,var(--purple),var(--purple-d));color:#fff;border:2px solid var(--ink);border-radius:8px;padding:6px 12px;box-shadow:var(--shadow-sm)}
+
+/* =====================================================
+   CSS BAGIAN 17 : MODAL BAYAR QRIS
+   ===================================================== */
+.pay-modal{display:none;position:fixed;inset:0;z-index:60;align-items:center;justify-content:center;padding:18px;background:rgba(20,16,8,.6)}
+.pay-modal.show{display:flex}
+.pay-card{position:relative;width:100%;max-width:340px;background:var(--cream);border:var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;text-align:center}
+.pay-close{position:absolute;top:10px;right:10px;width:26px;height:26px;border-radius:50%;background:var(--white);border:2px solid var(--ink);font-size:12px;line-height:1;box-shadow:var(--shadow-sm)}
+.pay-script-name{font-family:var(--font-pixel);font-size:14.5px;font-weight:700;margin-top:4px}
+.pay-script-price{font-family:var(--font-pixel);font-size:16px;font-weight:700;color:var(--pink-d);margin-top:4px}
+.pay-qris-wrap{width:200px;height:200px;margin:14px auto;border:var(--border);border-radius:var(--radius-sm);overflow:hidden;background:var(--white)}
+.pay-qris-wrap img{width:100%;height:100%;object-fit:contain}
+.pay-note{font-size:12px;opacity:.88;line-height:1.5;margin-bottom:14px}
+
+/* =====================================================
+   CSS BAGIAN 18 : PROFIL / PILIH AVATAR
+   ===================================================== */
+.profile-card{text-align:center}
+.profile-current{width:76px;height:76px;margin:0 auto 8px;border-radius:50%;border:3px solid var(--ink);box-shadow:var(--shadow-sm);overflow:hidden;background:var(--white)}
+.profile-current img{width:100%;height:100%;object-fit:cover}
+.profile-name{font-family:var(--font-pixel);font-size:12.5px;font-weight:700;margin-bottom:12px}
+.avatar-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
+.avatar-opt{width:100%;aspect-ratio:1;border-radius:50%;border:3px solid var(--ink);overflow:hidden;box-shadow:var(--shadow-sm);transition:transform .12s;position:relative}
+.avatar-opt img{width:100%;height:100%;object-fit:cover}
+.avatar-opt:active{transform:translateY(2px)}
+.avatar-opt.selected{outline:3px solid var(--pink);outline-offset:2px}
+.avatar-sub{font-family:var(--font-pixel);font-size:11px;font-weight:700;text-align:left;margin:12px 0 7px}
+.avatar-opt.builtin{display:grid;place-items:center;font-size:26px}
+.avatar-gallery-btn{width:100%;margin-top:12px;display:flex;align-items:center;justify-content:center;gap:8px;padding:11px;border:var(--border);border-radius:var(--radius-sm);box-shadow:var(--shadow-sm);background:linear-gradient(155deg,var(--yellow),var(--yellow-d));font-family:var(--font-pixel);font-size:12.5px;font-weight:700;transition:transform .12s}
+.avatar-gallery-btn:active{transform:translateY(2px)}
+.avatar-reset{display:none;width:100%;margin-top:8px;padding:8px;border:2px solid var(--ink);border-radius:var(--radius-sm);background:var(--white);font-family:var(--font-pixel);font-size:11.5px;font-weight:700;box-shadow:var(--shadow-sm)}
+.avatar-reset.show{display:block}
+.avatar-msg{font-family:var(--font-pixel);font-size:11px;min-height:12px;margin-top:8px;color:#b91c1c}
+.avatar-opt.custom{border-style:dashed}
+.avatar-opt:focus-visible,.avatar-gallery-btn:focus-visible{outline:3px solid var(--cyan);outline-offset:2px}
+.topbar-avatar{width:22px;height:22px;border-radius:50%;border:2px solid var(--white);overflow:hidden;display:inline-block;vertical-align:middle;margin-right:5px}
+.topbar-avatar img{width:100%;height:100%;object-fit:cover}
+
+/* =====================================================
+   CSS BAGIAN 19 : TOMBOL API MELAYANG
+   ===================================================== */
+#tab-home{padding-bottom:150px}
+.fire-dock{position:fixed;left:0;right:0;bottom:0;height:214px;z-index:5;pointer-events:none;display:flex;align-items:flex-end;justify-content:center;
+  padding:0 14px calc(env(safe-area-inset-bottom,0px) + 92px);
+  background:linear-gradient(0deg,rgba(226,214,172,.96) 0%,rgba(226,214,172,.78) 42%,rgba(226,214,172,0) 100%)}
+.fire-row{width:min(452px,100%);display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.fire-slot{--heat:1;position:relative;padding-top:48px;padding-bottom:12px;transition:opacity .3s}
+.fire-slot.badakin{--f1:#fffbe0;--f2:#ffd23f;--f3:#ff8a1f;--f4:#e0390f;--glow:255,120,20}
+.fire-slot.banding{--f1:#f2ffff;--f2:#8be9ff;--f3:#2a8cff;--f4:#1646c8;--glow:60,190,255}
+.fire-slot.locked{--heat:.88}
+.fire-slot.running{--heat:1.38}
+.fire-slot.dim{--heat:.35;opacity:.55}
+.fire-float{position:relative;animation:fire-bob 3.2s ease-in-out infinite}
+.fire-slot.banding .fire-float{animation-delay:-1.6s}
+
+.fire-btn{position:relative;z-index:1;pointer-events:auto;width:100%;height:62px;display:flex;align-items:center;justify-content:center;gap:10px;padding:0 10px;
+  border:var(--border);border-radius:20px;color:#fff;text-align:left;
+  background:linear-gradient(180deg,#ffb23e 0%,#ee5a1c 52%,#a22b06 100%);
+  box-shadow:0 6px 0 var(--ink),0 0 24px 2px rgba(var(--glow),.55),inset 0 2px 0 rgba(255,255,255,.5),inset 0 -9px 14px rgba(110,18,0,.38);
+  transition:transform .1s,box-shadow .1s,filter .25s}
+.fire-slot.banding .fire-btn{background:linear-gradient(180deg,#64d9ff 0%,#1f8a8c 55%,#0b4143 100%);box-shadow:0 6px 0 var(--ink),0 0 24px 2px rgba(var(--glow),.5),inset 0 2px 0 rgba(255,255,255,.5),inset 0 -9px 14px rgba(0,40,60,.4)}
+.fire-btn::before{content:"";position:absolute;left:8px;right:8px;top:4px;height:40%;border-radius:14px 14px 40px 40px;background:linear-gradient(180deg,rgba(255,255,255,.4),rgba(255,255,255,0));pointer-events:none}
+.fire-btn:active:not(:disabled){transform:translateY(5px);box-shadow:0 1px 0 var(--ink),0 0 18px 2px rgba(var(--glow),.55),inset 0 2px 0 rgba(255,255,255,.4)}
+.fire-btn:disabled{cursor:progress}
+.fire-btn:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+.fire-slot.locked .fire-btn{filter:saturate(.7) brightness(.95)}
+.fire-ico{position:relative;width:38px;height:38px;border-radius:12px;display:grid;place-items:center;font-size:20px;background:rgba(32,26,16,.82);border:2px solid rgba(255,255,255,.35);flex-shrink:0}
+.fire-txt{position:relative;display:flex;flex-direction:column;min-width:0}
+.fire-txt b{font-family:var(--font-pixel);font-size:15px;font-weight:700;letter-spacing:.05em;text-shadow:0 2px 0 rgba(0,0,0,.45)}
+.fire-txt small{font-size:10.5px;opacity:.95;text-shadow:0 1px 0 rgba(0,0,0,.4);white-space:nowrap}
+
+/* api: siluet lidah api, diberi flicker bergantian */
+.flames{position:absolute;z-index:0;left:6%;right:6%;bottom:calc(100% - 16px);height:58px;pointer-events:none;
+  filter:drop-shadow(0 0 5px rgba(var(--glow),.95)) drop-shadow(0 0 14px rgba(var(--glow),.55))}
+.flames i{position:absolute;bottom:0;width:24px;height:40px;transform-origin:50% 100%;--s:1;
+  clip-path:path('M12 0C13 9 24 15 24 28C24 35 19 40 12 40C5 40 0 35 0 28C0 20 6 18 8 9C9 14 11 12 12 0Z');
+  background:radial-gradient(ellipse at 50% 92%,var(--f1) 0%,var(--f2) 30%,var(--f3) 62%,var(--f4) 100%);
+  animation:flick .9s ease-in-out infinite alternate}
+.flames i::after{content:"";position:absolute;left:6px;right:6px;bottom:2px;height:55%;border-radius:50% 50% 50% 50%/70% 70% 30% 30%;
+  background:radial-gradient(ellipse at 50% 85%,#fff 0%,var(--f1) 38%,transparent 82%);opacity:.92}
+.flames i:nth-child(1){left:0%;--s:.78;animation-duration:.75s;animation-delay:-.2s}
+.flames i:nth-child(2){left:22%;--s:1.12;animation-duration:.95s;animation-delay:-.5s}
+.flames i:nth-child(3){left:calc(50% - 12px);--s:1.38;animation-duration:.85s;animation-delay:-.1s}
+.flames i:nth-child(4){right:22%;--s:1.05;animation-duration:1.05s;animation-delay:-.7s}
+.flames i:nth-child(5){right:0%;--s:.72;animation-duration:.7s;animation-delay:-.35s}
+@keyframes flick{
+  0%{transform:scale(calc(var(--s)*var(--heat)*.92),calc(var(--s)*var(--heat)*.88)) skewX(-5deg)}
+  35%{transform:scale(calc(var(--s)*var(--heat)*1.05),calc(var(--s)*var(--heat)*1.12)) skewX(4deg)}
+  70%{transform:scale(calc(var(--s)*var(--heat)*.97),calc(var(--s)*var(--heat)*1.02)) skewX(-3deg)}
+  100%{transform:scale(calc(var(--s)*var(--heat)*1.08),calc(var(--s)*var(--heat)*1.22)) skewX(6deg)}
+}
+/* percikan bara naik */
+.embers{position:absolute;z-index:0;left:10%;right:10%;bottom:calc(100% + 8px);height:70px;pointer-events:none}
+.embers b{position:absolute;bottom:0;width:4px;height:4px;border-radius:50%;background:var(--f2);box-shadow:0 0 6px 1px rgba(var(--glow),.95);opacity:0;animation:ember 2.4s linear infinite}
+.embers b:nth-child(1){left:8%;--dx:-10px;animation-delay:0s}
+.embers b:nth-child(2){left:26%;--dx:8px;animation-delay:-.7s;animation-duration:2.1s}
+.embers b:nth-child(3){left:44%;--dx:-6px;animation-delay:-1.3s;animation-duration:2.8s}
+.embers b:nth-child(4){left:60%;--dx:12px;animation-delay:-.4s}
+.embers b:nth-child(5){left:78%;--dx:-9px;animation-delay:-1.8s;animation-duration:2.2s}
+.embers b:nth-child(6){left:92%;--dx:6px;animation-delay:-1s;animation-duration:2.6s}
+@keyframes ember{0%{transform:translate(0,0) scale(1);opacity:0}12%{opacity:1}100%{transform:translate(var(--dx),-72px) scale(.2);opacity:0}}
+@keyframes fire-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+/* bayangan di bawah tombol melayang */
+.fire-shadow{position:absolute;left:12%;right:12%;bottom:0;height:12px;border-radius:50%;background:radial-gradient(ellipse,rgba(32,26,16,.42),rgba(32,26,16,0) 70%);animation:shadow-pulse 3.2s ease-in-out infinite}
+.fire-slot.banding .fire-shadow{animation-delay:-1.6s}
+@keyframes shadow-pulse{0%,100%{transform:scaleX(1);opacity:1}50%{transform:scaleX(.82);opacity:.6}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+.target-input-wrap.shake{animation:shake .45s}
+
+/* =====================================================
+   CSS BAGIAN 20 : PANEL PROSES (ESSER ENGINE, tema gelap)
+   ===================================================== */
+.proc-card{--acc:#ffb23e;--acc2:#ff7a1a;--accrgb:255,178,62;overflow:hidden;color:#f3ecd4;
+  background:radial-gradient(420px 170px at 100% 0%,rgba(var(--accrgb),.16),transparent 70%),linear-gradient(165deg,#1b160e 0%,#0d0a06 100%)}
+.proc-card.kind-banding{--acc:#4fd8dc;--acc2:#2a8cff;--accrgb:79,216,220}
+.proc-card.is-running::after{content:"";position:absolute;left:0;right:0;height:70px;pointer-events:none;
+  background:linear-gradient(180deg,transparent,rgba(var(--accrgb),.1),transparent);animation:scan 2.6s linear infinite}
+@keyframes scan{from{top:-70px}to{top:100%}}
+.proc-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.proc-title{display:flex;align-items:center;gap:11px;min-width:0}
+.proc-ico{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;flex-shrink:0;color:var(--acc);
+  background:rgba(var(--accrgb),.13);border:1px solid rgba(var(--accrgb),.4)}
+.proc-ico svg{width:21px;height:21px}
+.proc-name{font-family:var(--font-pixel);font-size:14.5px;font-weight:700;letter-spacing:.09em;color:#fff}
+.proc-sub{font-size:11.5px;color:rgba(243,236,212,.62);margin-top:1px}
+.proc-pill{display:inline-flex;align-items:center;gap:7px;padding:4px 11px;border-radius:999px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);
+  font-family:var(--font-pixel);font-size:10.5px;font-weight:700;letter-spacing:.07em;flex-shrink:0}
+.proc-pill i{width:7px;height:7px;border-radius:50%;background:#8a8470}
+.proc-pill.run{color:var(--acc);border-color:rgba(var(--accrgb),.5)}
+.proc-pill.run i{background:var(--acc);box-shadow:0 0 8px var(--acc);animation:blink 1s infinite}
+.proc-pill.done{color:#4cd964;border-color:rgba(76,217,100,.5)}
+.proc-pill.done i{background:#4cd964;box-shadow:0 0 8px #4cd964}
+.proc-dash{display:flex;align-items:center;gap:18px;margin-top:18px}
+.proc-ring{position:relative;width:106px;height:106px;flex-shrink:0;color:var(--acc)}
+.proc-ring svg{width:100%;height:100%;transform:rotate(-90deg);filter:drop-shadow(0 0 6px rgba(var(--accrgb),.55))}
+.proc-ring .trk{fill:none;stroke:rgba(255,255,255,.1);stroke-width:7}
+.proc-ring .bar{fill:none;stroke:currentColor;stroke-width:7;stroke-linecap:round;stroke-dasharray:263.9;stroke-dashoffset:263.9;transition:stroke-dashoffset .12s linear}
+.ring-txt{position:absolute;inset:0;display:grid;place-content:center;text-align:center}
+.ring-txt b{font-family:var(--font-pixel);font-size:22px;color:#fff;line-height:1}
+.ring-txt small{font-size:9px;letter-spacing:.14em;color:rgba(243,236,212,.55);margin-top:5px}
+.proc-metrics{flex:1;min-width:0;display:grid;grid-template-columns:1fr 1fr;gap:14px 10px}
+.proc-metrics small{display:block;font-size:9.5px;letter-spacing:.14em;color:rgba(243,236,212,.5)}
+.proc-metrics b{display:block;margin-top:3px;font-size:12.5px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
+.proc-segs{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:5px;margin-top:18px}
+.proc-segs i{height:6px;border-radius:3px;background:rgba(255,255,255,.1);overflow:hidden}
+.proc-segs u{display:block;height:100%;width:0;border-radius:3px;background:linear-gradient(90deg,var(--acc2),var(--acc));box-shadow:0 0 8px rgba(var(--accrgb),.7)}
+.proc-steps{list-style:none;margin:16px 0 0;padding:0}
+.proc-step{position:relative;display:flex;align-items:flex-start;gap:12px;padding-bottom:14px;transition:opacity .25s}
+.proc-step:last-child{padding-bottom:0}
+.proc-step::before{content:"";position:absolute;left:10px;top:24px;bottom:2px;width:1.5px;background:rgba(255,255,255,.14)}
+.proc-step:last-child::before{display:none}
+.proc-step.done::before{background:var(--acc)}
+.proc-step > div{flex:1;min-width:0}
+.step-dot{position:relative;z-index:1;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;flex-shrink:0;
+  border:1.5px solid rgba(255,255,255,.25);color:rgba(243,236,212,.6);font-family:var(--font-pixel);font-size:10px;font-weight:700;background:#14100a}
+.proc-step.active .step-dot{border-color:var(--acc);color:var(--acc);box-shadow:0 0 0 3px rgba(var(--accrgb),.18)}
+.proc-step.active .step-dot::after{content:"";width:10px;height:10px;border:2px solid var(--acc);border-top-color:transparent;border-radius:50%;animation:spin .7s linear infinite}
+.proc-step.done .step-dot{background:var(--acc);border-color:var(--acc);color:#14100a}
+.proc-step.pending{opacity:.5}
+.proc-step b{display:block;font-size:13px;font-weight:600;color:#fff}
+.proc-step small{display:block;margin-top:1px;font-size:10.5px;color:rgba(243,236,212,.6)}
+.step-dur{font-style:normal;font-size:11px;color:var(--acc);font-variant-numeric:tabular-nums;padding-top:2px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.proc-result{display:none;margin-top:16px;border-radius:14px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);overflow:hidden}
+.proc-result.show{display:block;animation:res-pop .4s cubic-bezier(.2,1.2,.3,1)}
+@keyframes res-pop{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.res-head{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.1);font-family:var(--font-pixel);font-size:11.5px;color:rgba(243,236,212,.75)}
+.res-badge{padding:2px 10px;border-radius:999px;font-weight:700;background:rgba(76,217,100,.15);color:#4cd964;border:1px solid rgba(76,217,100,.45)}
+.res-list{margin:0;padding:4px 12px}
+.res-list > div{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px dashed rgba(255,255,255,.12);font-size:12.5px}
+.res-list > div:last-child{border-bottom:none}
+.res-list dt{color:rgba(243,236,212,.6)}
+.res-list dd{margin:0;color:#fff;font-weight:700;text-align:right}
+.res-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:6px 12px 12px}
+.res-actions button{padding:10px;border-radius:10px;font-family:var(--font-pixel);font-size:12px;font-weight:700;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.06);color:#fff}
+.res-actions button[data-act="again"]{background:linear-gradient(155deg,var(--acc),var(--acc2));color:#14100a;border-color:transparent}
+.res-actions button:active{transform:translateY(2px)}
+.proc-foot{margin-top:14px;font-size:11px;color:rgba(243,236,212,.5);font-style:italic}
+
+/* =====================================================
+   CSS BAGIAN 21 : SEMUA TOMBOL MENGAPUNG
+   (pakai properti "translate" supaya tidak bentrok dengan efek tekan)
+   ===================================================== */
+@keyframes soft-float{0%,100%{translate:0 0}50%{translate:0 -4px}}
+@keyframes nav-float{0%,100%{translate:0 0}50%{translate:0 -5px}}
+.payload-card,.shop-buy,.tool-go,.login-btn,.logout-btn,.clear-btn,.avatar-gallery-btn,.akun-del,.contact-card,.pay-close{
+  animation:soft-float 3.6s ease-in-out infinite}
+.payload-card:nth-child(2),.shop-card:nth-child(even) .shop-buy,.tool-card:nth-child(even) .tool-go{animation-delay:-1.2s}
+.payload-card:nth-child(3),.shop-card:nth-child(3n) .shop-buy,.contact-card:nth-of-type(2){animation-delay:-2.4s}
+.logout-btn,.clear-btn{animation-delay:-.8s}
+.payload-card,.logout-btn,.clear-btn,.akun-del,.avatar-gallery-btn{box-shadow:0 3px 0 var(--ink),0 10px 14px rgba(32,26,16,.22)}
+.shop-buy,.tool-go{box-shadow:0 3px 0 var(--ink),0 9px 12px rgba(32,26,16,.25)}
+.contact-card{box-shadow:0 4px 0 var(--ink),0 12px 18px rgba(32,26,16,.25)}
+.bottom-nav{animation:nav-float 4.2s ease-in-out infinite;box-shadow:0 5px 0 var(--ink),0 18px 26px rgba(32,26,16,.32)}
+.nav-item{transition:background .15s,opacity .15s,translate .2s}
+.nav-item[aria-selected="true"]{translate:0 -3px;box-shadow:0 3px 0 var(--ink),0 8px 12px rgba(18,95,97,.4)}
+
+@media (prefers-reduced-motion:reduce){
+  .fire-float,.fire-shadow,.flames i,.embers b,.proc-card.is-running::after,.proc-pill.run i,
+  .payload-card,.shop-buy,.tool-go,.login-btn,.logout-btn,.clear-btn,.avatar-gallery-btn,.akun-del,.contact-card,.pay-close,.bottom-nav{animation:none}
+  .embers{display:none}
+}
+.fire-btn{justify-content:center;text-align:center}
+.fire-txt{align-items:center}
+.fire-txt b{font-size:16px;letter-spacing:.1em}
+.akun-item .akun-meta{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:4px}
+.akun-item .akun-meta .akun-name{flex:none;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.exp-pill{display:inline-block;padding:1px 9px;border:2px solid var(--ink);border-radius:999px;font-family:var(--font-pixel);font-size:10.5px;font-weight:700}
+.exp-pill.perm{background:linear-gradient(155deg,var(--cyan),var(--cyan-d));color:#fff}
+.exp-pill.left{background:var(--green)}
+.exp-pill.warn{background:var(--yellow)}
+.exp-pill.expired{background:var(--red);color:#fff}
+.akun-item.is-expired{opacity:.7}
+.exp-date{font-size:10.5px;opacity:.75}
+.akun-form select.role-select{min-width:0}
+</style>
+</head>
+
+<body>
+
+<!-- ========== LOGIN SCREEN ========== -->
+<div id="login-screen">
+  <div class="login-blob b1"></div>
+  <div class="login-blob b2"></div>
+  <div class="login-deco d1"></div>
+  <div class="login-deco d2"></div>
+  <div class="login-deco d3"></div>
+  <div class="login-card">
+    <div class="login-card-top">
+      <img class="login-bg" id="login-bg-img" src="https://files.catbox.moe/p649c4.jpg" referrerpolicy="no-referrer" alt="">
+      <div class="login-brand">ESSER STRONG</div>
+    </div>
+    <div class="login-avatar"><div class="logo-inner"><img id="login-avatar-img" src="https://files.catbox.moe/p649c4.jpg" referrerpolicy="no-referrer" alt="Logo Esser Strong"></div></div>
+    <div class="login-card-body">
+      <div class="login-title">ESSER STRONG</div>
+      <div class="login-sub"> Pastikan Usernam & Password Yang Anda Masukan Benar.</div>
+      <div class="login-chips"><span> Badakin</span><span> Banding</span><span> Nomor</span></div>
+      <form id="login-form">
+        <div class="login-field">
+          <label for="login-user">USERNAME</label>
+          <div class="login-input"><span class="li-ico">👤</span><input id="login-user" type="text" autocomplete="off" placeholder="username bebas"></div>
+        </div>
+        <div class="login-field">
+          <label for="login-pass">PASSWORD</label>
+          <div class="login-input pw"><span class="li-ico">🔒</span><input id="login-pass" type="password" autocomplete="off" placeholder="password akses"><button type="button" class="login-eye" id="login-eye" aria-label="Tampilkan password">👁️</button></div>
+        </div>
+        <button type="submit" class="login-btn">MASUK</button>
+        <div class="login-error" id="login-error" role="alert"></div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<main class="app" id="app-main" style="display:none">
+
+  <!-- ========== HTML BAGIAN 1 : HEADER (sama di semua tab) ========== -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-icon"><img id="logo-img" src="https://files.catbox.moe/p649c4.jpg" referrerpolicy="no-referrer" alt="Logo"></div>
+      <div>
+        <div class="topbar-title">ESSER STRONG</div>
+        <div class="topbar-sub"><span class="topbar-avatar"><img id="topbar-avatar-img" src="" alt=""></span><span id="topbar-user">—</span></div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;z-index:1">
+      <span class="badge" id="role-badge">MEMBER</span>
+      <button class="logout-btn" id="logout-btn">Keluar ↩</button>
+    </div>
+  </header>
+
+  <!-- ========== TAB 1 : HOME ========== -->
+  <section class="tab-panel is-active" id="tab-home">
+
+    <div class="banner">
+      <img id="banner-img" src="" alt="Banner">
+    </div>
+
+    <div class="quick-stats">
+      <div class="qs-item" style="background:linear-gradient(155deg,var(--cyan),var(--cyan-d))"><small>SALDO</small><b>Rp0</b></div>
+      <div class="qs-item" style="background:linear-gradient(155deg,var(--yellow),var(--yellow-d))"><small>EXPIRED</small><b id="qs-expired" style="font-size:15px">-</b><small id="qs-expired-sub" style="display:block;margin-top:2px;font-size:10px">-</small></div>
+      <div class="qs-item" style="background:linear-gradient(155deg,var(--pink),var(--pink-d));color:#fff"><small>LEVEL</small><b id="qs-level">—</b></div>
+    </div>
+
+    <div class="target-box">
+      <div class="target-label">TARGET NOMOR</div>
+      <div class="target-input-wrap" id="target-wrap">
+        <span>📱</span>
+        <input id="target-input" type="tel" inputmode="numeric" placeholder="e.g. +628xxxxxxxxx" autocomplete="off">
+      </div>
+      <div class="target-msg" id="target-msg"></div>
+    </div>
+
+    <div class="card cream">
+      <div class="payload-head">
+        <div style="font-family:var(--font-pixel);font-size:12.5px;font-weight:700">SELECT PAYLOAD</div>
+        <span class="payload-select" id="payload-count">01 / 03</span>
+      </div>
+      <div class="payload-grid" style="margin-top:10px">
+        <button class="payload-card active" data-id="1" data-name="Payload satu">
+          <span class="payload-tag">01</span>
+          <span class="payload-name">MODE SLOW</span>
+          <span class="payload-status on">AKTIF</span>
+        </button>
+        <button class="payload-card idle" data-id="2" data-name="Payload dua">
+          <span class="payload-tag">02</span>
+          <span class="payload-name">MODE MEDIUM</span>
+          <span class="payload-status off">SERVER OFF</span>
+        </button>
+        <button class="payload-card idle" data-id="3" data-name="Payload tiga">
+          <span class="payload-tag">03</span>
+          <span class="payload-name">MODE FAST</span>
+          <span class="payload-status off">SERVER OFF</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="card proc-card" id="proc-card">
+      <div class="proc-head">
+        <div class="proc-title">
+          <span class="proc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/></svg></span>
+          <div><div class="proc-name">ESSER ENGINE</div><div class="proc-sub" id="proc-sub">Menunggu perintah</div></div>
+        </div>
+        <span class="proc-pill idle" id="proc-pill"><i></i><span id="proc-pill-text">SIAGA</span></span>
+      </div>
+      <div class="proc-dash">
+        <div class="proc-ring">
+          <svg viewBox="0 0 100 100" aria-hidden="true"><circle class="trk" cx="50" cy="50" r="42"/><circle class="bar" id="proc-ring-fill" cx="50" cy="50" r="42"/></svg>
+          <div class="ring-txt"><b id="proc-pct">0%</b><small>PROGRES</small></div>
+        </div>
+        <div class="proc-metrics">
+          <div><small>JOB ID</small><b id="m-job">-</b></div>
+          <div><small>DURASI</small><b id="proc-time">00:00.0</b></div>
+          <div><small>LANGKAH</small><b id="m-step">0 / 5</b></div>
+          <div><small>TARGET</small><b id="m-target">-</b></div>
+        </div>
+      </div>
+      <div class="proc-segs" id="proc-segs"></div>
+      <ol class="proc-steps" id="proc-steps"></ol>
+      <div class="proc-result" id="proc-result" aria-live="polite"></div>
+      <div class="proc-foot">SELESAI.</div>
+    </div>
+
+    <div class="card cream">
+      <div class="console-head">
+        <div class="console-title">
+          <div class="console-icon">▤</div>
+          <div>
+            <div class="console-name">LOG AKTIVITAS</div>
+            <div class="console-sub" id="console-sub">Idle</div>
+          </div>
+        </div>
+        <span class="live-pill off" id="live-pill"><span class="live-dot"></span><span id="live-text">OFFLINE</span></span>
+      </div>
+      <div class="console-screen" id="console-screen">
+        <div class="console-line"><span class="console-time">--:--:--</span> <span class="console-info">[i]</span> Menunggu perintah…</div>
+      </div>
+      <button class="clear-btn" id="clear-btn">Bersihkan log</button>
+    </div>
+    <!-- TOMBOL API MELAYANG (muncul hanya di tab Home) -->
+    <div class="fire-dock">
+      <div class="fire-row">
+      <div class="fire-slot badakin locked" id="slot-badakin">
+        <div class="fire-float">
+          <span class="flames" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+          <span class="embers" aria-hidden="true"><b></b><b></b><b></b><b></b><b></b><b></b></span>
+          <button type="button" class="fire-btn" id="btn-badakin" aria-label="Jalankan Badakin">
+            <span class="fire-txt"><b>BADAKIN</b><small>Kuatkan nomor</small></span>
+          </button>
+        </div>
+        <span class="fire-shadow" aria-hidden="true"></span>
+      </div>
+      <div class="fire-slot banding locked" id="slot-banding">
+        <div class="fire-float">
+          <span class="flames" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+          <span class="embers" aria-hidden="true"><b></b><b></b><b></b><b></b><b></b><b></b></span>
+          <button type="button" class="fire-btn" id="btn-banding" aria-label="Jalankan Banding">
+            <span class="fire-txt"><b>BANDING</b><small>Ajukan banding</small></span>
+          </button>
+        </div>
+        <span class="fire-shadow" aria-hidden="true"></span>
+      </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== TAB 2 : NOMOR TOOLS ========== -->
+  <section class="tab-panel" id="tab-nomor">
+    <div class="section-title"><span class="ico">🔍</span>Nomor Tools</div>
+    <p class="section-sub">Klik salah satu alat, masukkan nomor, lalu jalankan.</p>
+
+    <div class="tool-card" data-tool>
+      <button class="tool-head">
+        <div class="tool-ico c1">🔎</div>
+        <div class="tool-info"><b>Cek Nomor</b><small>Lihat status umum nomor WhatsApp</small></div>
+        <span class="tool-chev">›</span>
+      </button>
+      <div class="tool-body">
+        <div class="tool-input-row">
+          <div class="target-input-wrap"><span>📱</span><input class="tool-input" type="tel" inputmode="numeric" placeholder="+628xxxxxxxxx"></div>
+          <button class="tool-go" data-result="cek">CEK</button>
+        </div>
+        <div class="tool-result" data-result-box></div>
+      </div>
+    </div>
+
+    <div class="tool-card" data-tool>
+      <button class="tool-head">
+        <div class="tool-ico c2">⏳</div>
+        <div class="tool-info"><b>Umur Nomor</b><small>Estimasi lama nomor terdaftar</small></div>
+        <span class="tool-chev">›</span>
+      </button>
+      <div class="tool-body">
+        <div class="tool-input-row">
+          <div class="target-input-wrap"><span>📱</span><input class="tool-input" type="tel" inputmode="numeric" placeholder="+628xxxxxxxxx"></div>
+          <button class="tool-go" data-result="umur">CEK</button>
+        </div>
+        <div class="tool-result" data-result-box></div>
+      </div>
+    </div>
+
+    <div class="tool-card" data-tool>
+      <button class="tool-head">
+        <div class="tool-ico c5">💪</div>
+        <div class="tool-info"><b>Kuatin Nomor</b><small>Tingkatkan skor kestabilan nomor</small></div>
+        <span class="tool-chev">›</span>
+      </button>
+      <div class="tool-body">
+        <div class="tool-input-row">
+          <div class="target-input-wrap"><span>📱</span><input class="tool-input" type="tel" inputmode="numeric" placeholder="+628xxxxxxxxx"></div>
+          <button class="tool-go" data-result="kuat">PROSES</button>
+        </div>
+        <div class="tool-result" data-result-box></div>
+      </div>
+    </div>
+
+    <div class="tool-card" data-tool>
+      <button class="tool-head">
+        <div class="tool-ico c3">⚖️</div>
+        <div class="tool-info"><b>Banding Nomor</b><small>Ajukan banding untuk nomor terbatas</small></div>
+        <span class="tool-chev">›</span>
+      </button>
+      <div class="tool-body">
+        <div class="tool-input-row">
+          <div class="target-input-wrap"><span>📱</span><input class="tool-input" type="tel" inputmode="numeric" placeholder="+628xxxxxxxxx"></div>
+          <button class="tool-go" data-result="banding">AJUKAN</button>
+        </div>
+        <div class="tool-result" data-result-box></div>
+      </div>
+    </div>
+
+    <div class="tool-card" data-tool>
+      <button class="tool-head">
+        <div class="tool-ico c4">🔓</div>
+        <div class="tool-info"><b>Banding Batasi</b><small>Ajukan pencabutan batasan kirim pesan</small></div>
+        <span class="tool-chev">›</span>
+      </button>
+      <div class="tool-body">
+        <div class="tool-input-row">
+          <div class="target-input-wrap"><span>📱</span><input class="tool-input" type="tel" inputmode="numeric" placeholder="+628xxxxxxxxx"></div>
+          <button class="tool-go" data-result="batasi">AJUKAN</button>
+        </div>
+        <div class="tool-result" data-result-box></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== TAB 3 : CS & KONTAK ========== -->
+  <section class="tab-panel" id="tab-cs">
+    <div class="section-title"><span class="ico">👤</span>Profil Saya</div>
+    <p class="section-sub">Pilih avatar untuk akun kamu.</p>
+    <div class="card cream profile-card">
+      <div class="profile-current"><img id="profile-avatar-big" src="" alt="Avatar kamu"></div>
+      <div class="profile-name" id="profile-name">—</div>
+      <div class="avatar-sub">AVATAR BAWAAN</div>
+      <div class="avatar-grid" id="avatar-grid"></div>
+      <button type="button" class="avatar-gallery-btn" id="avatar-gallery-btn">🖼️ Pilih dari Galeri</button>
+      <input type="file" id="avatar-file" accept="image/*" hidden>
+      <button type="button" class="avatar-reset" id="avatar-reset">Kembali ke logo</button>
+      <div class="avatar-msg" id="avatar-msg" role="status"></div>
+    </div>
+
+    <div class="section-title" style="margin-top:4px"><span class="ico">💬</span>CS & Kontak</div>
+    <p class="section-sub">Hubungi admin atau join channel resmi.</p>
+
+    <!-- GANTI nomor/username di href masing-masing -->
+    <a class="contact-card glow-cyan card" href="https://wa.me/628xxxxxxxxxx" target="_blank" rel="noopener">
+      <div class="tool-ico c1">🎧</div>
+      <div><b>Customer Service</b><small>Chat admin via WhatsApp</small></div>
+      <span class="contact-arrow">↗</span>
+    </a>
+
+    <a class="contact-card glow-purple card" href="https://t.me/KINKFLUXO" target="_blank" rel="noopener">
+      <div class="tool-ico c4">✈️</div>
+      <div><b>Kontak Telegram</b><small>FLUXO</small></div>
+      <span class="contact-arrow">↗</span>
+    </a>
+
+    <a class="contact-card glow-yellow card" href="https://t.me/fluxobosmuda" target="_blank" rel="noopener">
+      <div class="tool-ico c2">📢</div>
+      <div><b>Channel Telegram</b><small>Info update & promo</small></div>
+      <span class="contact-arrow">↗</span>
+    </a>
+  </section>
+
+  <!-- ========== TAB 4 : TOKO SCRIPT ========== -->
+  <section class="tab-panel" id="tab-tools">
+    <div class="section-title"><span class="ico">🛒</span>Toko Script</div>
+    <p class="section-sub">Pilih script, transfer via QRIS.</p>
+    <div class="shop-grid" id="shop-grid"></div>
+  </section>
+
+  <!-- ========== TAB 5 : AKUN (owner & reseller saja) ========== -->
+  <section class="tab-panel" id="tab-akun">
+    <div class="section-title"><span class="ico">👤</span>Manajemen Akun</div>
+    <p class="section-sub" id="akun-sub">Buat akses baru untuk pengguna lain.</p>
+
+    <div class="card cream">
+      <div style="font-family:var(--font-pixel);font-size:12.5px;font-weight:700;margin-bottom:10px">BUAT AKUN BARU</div>
+      <form class="akun-form" id="akun-form">
+        <div class="target-input-wrap"><span>👤</span><input id="akun-user" type="text" autocomplete="off" placeholder="Username baru"></div>
+        <div class="target-input-wrap"><span>🔒</span><input id="akun-pass" type="text" autocomplete="off" placeholder="Password"></div>
+        <div class="akun-row">
+          <select class="role-select" id="akun-role" aria-label="Role akun"></select>
+          <select class="role-select" id="akun-days" aria-label="Masa aktif akun">
+            <option value="30">Aktif 30 hari</option>
+            <option value="0">Permanen</option>
+          </select>
+        </div>
+        <button type="submit" class="tool-go" style="width:100%;padding:13px">BUAT AKUN</button>
+        <div class="login-error" id="akun-error"></div>
+      </form>
+    </div>
+
+    <div class="card cream">
+      <div style="font-family:var(--font-pixel);font-size:12.5px;font-weight:700;margin-bottom:6px">AKUN BUATAN KAMU</div>
+      <div class="akun-list" id="akun-list"></div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ========== MODAL BAYAR QRIS ========== -->
+<div id="pay-modal" class="pay-modal">
+  <div class="pay-card">
+    <button class="pay-close" id="pay-close">✕</button>
+    <div class="pay-script-name" id="pay-script-name">—</div>
+    <div class="pay-script-price" id="pay-script-price">—</div>
+    <div class="pay-qris-wrap"><img id="pay-qris-img" src="" alt="QRIS"></div>
+    <p class="pay-note">Scan QRIS di atas dan transfer sesuai nominal. Setelah transfer, klik tombol di bawah untuk kirim bukti transfer ke Telegram admin.</p>
+    <button class="login-btn" id="pay-confirm-btn">SUDAH TRANSFER — KIRIM BUKTI</button>
+  </div>
+</div>
+
+<!-- ========== NAVIGASI BAWAH ========== -->
+<nav class="bottom-nav" aria-label="Navigasi utama" id="bottom-nav">
+  <button class="nav-item" data-tab="tab-home" aria-selected="true"><span>⌂</span><small>Home</small></button>
+  <button class="nav-item" data-tab="tab-nomor" aria-selected="false"><span>🔍</span><small>Nomor</small></button>
+  <button class="nav-item" data-tab="tab-cs" aria-selected="false"><span>💬</span><small>CS</small></button>
+  <button class="nav-item" data-tab="tab-tools" aria-selected="false"><span>⚒</span><small>Tools</small></button>
+  <button class="nav-item" data-tab="tab-akun" aria-selected="false" id="nav-akun"><span>👤</span><small>Akun</small></button>
+</nav>
+
+<script>
+/* =====================================================
+   JS: semua di bawah ini HANYA mengatur TAMPILAN.
+   Tidak ada request ke server luar, tidak ada yang
+   benar-benar dikirim ke WhatsApp / nomor manapun.
+   Hasil "cek nomor" dan sejenisnya adalah data simulasi.
+   ===================================================== */
+
+/* =====================================================
+   ⚙️ KONFIGURASI FOTO & TOKO SCRIPT — SEMUA DI SINI SAJA
+   Tinggal ganti link catbox di bawah ini, tidak perlu
+   utak-atik bagian lain di kode.
+   ===================================================== */
+const CONFIG = {
+  // Foto logo bulat di pojok kiri atas header
+  logoImage: 'https://files.catbox.moe/p649c4.jpg',
+
+  // Foto banner besar di tab Home
+  bannerImage: 'https://files.catbox.moe/jn9viz.jpg',
+
+  // Pilihan avatar profil — tinggal tambah/ganti link di sini, otomatis muncul jadi pilihan
+  // (link yang masih berisi "GANTI_" otomatis dilewati)
+  avatarOptions: [
+    'https://files.catbox.moe/p649c4.jpg',
+    'https://files.catbox.moe/jn9viz.jpg',
+    'https://files.catbox.moe/GANTI_FOTO_AVATAR_3.jpg',
+    'https://files.catbox.moe/GANTI_FOTO_AVATAR_4.jpg',
+  ],
+
+  // Foto QRIS yang muncul saat pembeli mau transfer
+  qrisImage: 'https://files.catbox.moe/cmxrw2.jpg',
+
+  // Link Telegram tujuan kirim bukti transfer
+  telegramBukti: 'https://t.me/kinkfluxo',
+
+  // Daftar script yang dijual — tinggal tambah/hapus/edit baris di bawah
+  scripts: [
+    {
+      nama: 'SCRIPT BOT BADAKIN NOKOS PREMIUM V1',
+      harga: 'Rp15.000',
+      deskripsi: 'Bot Telegram BADAKIN NOKOS',
+      foto: 'https://files.catbox.moe/p649c4.jpg',
+    },
+    {
+      nama: 'Script WA Bot',
+      harga: 'Rp15.000',
+      deskripsi: 'Bot WhatsApp (Baileys) lengkap dengan menu & fitur dasar. ada foto live juga',
+      foto: 'https://files.catbox.moe/p649c4.jpg',
+    },
+    {
+      nama: 'Script Bot Badakin nokos VVIP',
+      harga: 'Rp25.000',
+      deskripsi: 'BOT TELEGRAM BADAKIN NOMOR 100% WORK',
+      foto: 'https://files.catbox.moe/p649c4.jpg',
+    },
+    {
+      nama: 'SCRIPT AUTO ORDER NOKOS',
+      harga: 'Rp35.000',
+      deskripsi: 'Bot order otomatis ',
+      foto: 'https://files.catbox.moe/p649c4.jpg',
+    },
+  ],
+};
+
+/* =====================================================
+   JS BAGIAN 0 : LOGIN & MANAJEMEN AKUN (owner/reseller/member)
+   Disimpan di localStorage browser ini saja — bukan server.
+   ===================================================== */
+const USERS_KEY = 'badak_users';
+const SESSION_KEY = 'badak_session';
+
+/* Password akses utama per-role — username boleh bebas, password ini yang menentukan role */
+const ROLE_PASSWORDS = { 'flux155': 'owner', 'flux122': 'reseller', 'flux133': 'member' };
+
+function loadUsers() {
+  let raw = localStorage.getItem(USERS_KEY);
+  if (!raw) { localStorage.setItem(USERS_KEY, '[]'); return []; }
+  try { return JSON.parse(raw); } catch { return []; }
+}
+function saveUsers(users) { localStorage.setItem(USERS_KEY, JSON.stringify(users)); }
+function getSession() {
+  const raw = localStorage.getItem(SESSION_KEY);
+  if (!raw) return null;
+  try { return JSON.parse(raw); } catch { return null; }
+}
+function setSession(username, role) { localStorage.setItem(SESSION_KEY, JSON.stringify({ username, role })); }
+function clearSession() { localStorage.removeItem(SESSION_KEY); }
+
+/* Siapa boleh membuat role apa */
+const CAN_CREATE = { owner: ['reseller', 'member'], reseller: ['member'], member: [] };
+const ROLE_LABEL = { owner: 'OWNER', reseller: 'RESELLER', member: 'MEMBER' };
+
+const loginScreen = document.getElementById('login-screen');
+const appMain = document.getElementById('app-main');
+const loginForm = document.getElementById('login-form');
+const loginError = document.getElementById('login-error');
+const roleBadge = document.getElementById('role-badge');
+const topbarUser = document.getElementById('topbar-user');
+const qsLevel = document.getElementById('qs-level');
+const navAkun = document.getElementById('nav-akun');
+const akunSub = document.getElementById('akun-sub');
+const akunRoleSelect = document.getElementById('akun-role');
+const akunForm = document.getElementById('akun-form');
+const akunError = document.getElementById('akun-error');
+const akunList = document.getElementById('akun-list');
+
+/* ---- Avatar profil per-username ---- */
+const AVATAR_PREFIX = 'badak_avatar_';
+const AVATAR_DEFAULT = CONFIG.logoImage;
+
+/* Avatar bawaan fitur: gambar SVG lokal (tidak butuh internet / link) */
+function makeAvatar(emoji, c1, c2) {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></linearGradient></defs><rect width="100" height="100" fill="url(#g)"/><text x="50" y="68" font-size="52" text-anchor="middle">${emoji}</text></svg>`;
+  return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+}
+const BUILTIN_AVATARS = [
+  makeAvatar('🦏', '#3f6b4a', '#24442c'),
+  makeAvatar('💪', '#e8972c', '#b96f12'),
+  makeAvatar('🔥', '#c1440e', '#8c3109'),
+  makeAvatar('🌊', '#1f8a8c', '#125f61'),
+  makeAvatar('⚡', '#e8972c', '#c1440e'),
+  makeAvatar('🛡️', '#24442c', '#1f8a8c'),
+  makeAvatar('🌿', '#4cd964', '#3f6b4a'),
+  makeAvatar('⭐', '#8c3109', '#e8972c'),
+];
+function avatarChoices() {
+  const fromConfig = CONFIG.avatarOptions.filter(u => u && !u.includes('GANTI_'));
+  return [...new Set([...fromConfig, ...BUILTIN_AVATARS])];
+}
+function getAvatar(username) {
+  try { return localStorage.getItem(AVATAR_PREFIX + username) || AVATAR_DEFAULT; }
+  catch { return AVATAR_DEFAULT; }
+}
+function setAvatar(username, url) {
+  try { localStorage.setItem(AVATAR_PREFIX + username, url); return true; }
+  catch { return false; }
+}
+function clearAvatar(username) {
+  try { localStorage.removeItem(AVATAR_PREFIX + username); } catch {}
+}
+function isCustomAvatar(url) { return url.startsWith('data:image/') && !url.startsWith('data:image/svg+xml'); }
+
+/* ---- Masa aktif akun (30 hari / permanen) ---- */
+const DAY_MS = 86400000;
+const EXPIRED_MSG = 'Masa aktif akun sudah habis. Hubungi admin untuk akun baru.';
+function findAccount(username) { return loadUsers().find(u => u.username === username) || null; }
+/* akun lama tanpa expiresAt dianggap permanen */
+function isExpired(acc) { return !!(acc && acc.expiresAt && Date.now() >= acc.expiresAt); }
+function daysLeft(acc) { return Math.max(0, Math.ceil((acc.expiresAt - Date.now()) / DAY_MS)); }
+function fmtDate(ts) {
+  const d = new Date(ts), p = n => String(n).padStart(2, '0');
+  return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
+}
+function doLogout(message) {
+  clearSession();
+  appMain.style.display = 'none';
+  loginScreen.style.display = 'flex';
+  document.getElementById('login-user').value = '';
+  document.getElementById('login-pass').value = '';
+  document.getElementById('login-pass').type = 'password';
+  document.getElementById('login-eye').textContent = '👁️';
+  loginError.textContent = message || '';
+}
+/* true = sesi barusan ditutup karena akun kedaluwarsa */
+function enforceExpiry() {
+  const me = currentUser();
+  if (!me) return false;
+  if (isExpired(findAccount(me.username))) { doLogout(EXPIRED_MSG); return true; }
+  return false;
+}
+
+function currentUser() {
+  const session = getSession();
+  if (!session) return null;
+  return { username: session.username, role: session.role };
+}
+
+function enterApp() {
+  const me = currentUser();
+  if (!me) return;
+  loginScreen.style.display = 'none';
+  appMain.style.display = 'flex';
+
+  roleBadge.textContent = ROLE_LABEL[me.role];
+  roleBadge.className = 'badge';
+  topbarUser.textContent = '@' + me.username;
+  qsLevel.textContent = ROLE_LABEL[me.role][0] + ROLE_LABEL[me.role].slice(1).toLowerCase();
+  refreshAvatarUI();
+
+  const acc = findAccount(me.username);
+  const qsExp = document.getElementById('qs-expired'), qsExpSub = document.getElementById('qs-expired-sub');
+  if (acc && acc.expiresAt) { qsExp.textContent = fmtDate(acc.expiresAt); qsExpSub.textContent = 'Sisa ' + daysLeft(acc) + ' hari'; }
+  else { qsExp.textContent = 'Permanen'; qsExpSub.textContent = 'Tanpa batas'; }
+
+  const allowed = CAN_CREATE[me.role] || [];
+  if (allowed.length === 0) {
+    navAkun.style.display = 'none';
+  } else {
+    navAkun.style.display = '';
+    akunRoleSelect.innerHTML = allowed.map(r => `<option value="${r}">${ROLE_LABEL[r]}</option>`).join('');
+    akunSub.textContent = me.role === 'owner'
+      ? 'Sebagai Owner, kamu bisa membuat akun Reseller dan Member.'
+      : 'Sebagai Reseller, kamu hanya bisa membuat akun Member.';
+  }
+  renderAkunList();
+}
+
+/* ---- Render pilihan avatar & profil ---- */
+const avatarGrid = document.getElementById('avatar-grid');
+const profileAvatarBig = document.getElementById('profile-avatar-big');
+const profileName = document.getElementById('profile-name');
+const topbarAvatarImg = document.getElementById('topbar-avatar-img');
+
+const avatarMsg = document.getElementById('avatar-msg');
+const avatarFile = document.getElementById('avatar-file');
+const avatarReset = document.getElementById('avatar-reset');
+
+function refreshAvatarUI() {
+  const me = currentUser();
+  if (!me) return;
+  const current = getAvatar(me.username);
+  profileAvatarBig.src = current;
+  topbarAvatarImg.src = current;
+  profileName.textContent = '@' + me.username;
+
+  const choices = avatarChoices();
+  /* Avatar dari galeri ikut tampil sebagai pilihan aktif di grid */
+  const custom = isCustomAvatar(current) ? [current] : [];
+  const all = [...custom, ...choices];
+
+  avatarGrid.innerHTML = all.map((url, i) => `
+    <button type="button" class="avatar-opt${url === current ? ' selected' : ''}${custom.length && i === 0 ? ' custom' : ''}" data-avatar="${i}" aria-label="Avatar ${i + 1}">
+      <img src="${url}" alt="Avatar ${i + 1}">
+    </button>`).join('');
+
+  avatarGrid.querySelectorAll('[data-avatar]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const url = all[Number(btn.dataset.avatar)];
+      avatarMsg.textContent = '';
+      if (!setAvatar(me.username, url)) avatarMsg.textContent = 'Penyimpanan browser penuh/terblokir, avatar tidak tersimpan.';
+      refreshAvatarUI();
+    });
+  });
+  avatarReset.classList.toggle('show', current !== AVATAR_DEFAULT);
+}
+
+/* ---- Pilih avatar dari galeri: potong persegi, kecilkan 256px, simpan ---- */
+document.getElementById('avatar-gallery-btn').addEventListener('click', () => avatarFile.click());
+avatarFile.addEventListener('change', () => {
+  const me = currentUser();
+  const file = avatarFile.files && avatarFile.files[0];
+  avatarFile.value = '';
+  avatarMsg.textContent = '';
+  if (!me || !file) return;
+  if (!file.type.startsWith('image/')) { avatarMsg.textContent = 'File harus berupa gambar.'; return; }
+  const reader = new FileReader();
+  reader.onerror = () => { avatarMsg.textContent = 'Gagal membaca file.'; };
+  reader.onload = () => {
+    const img = new Image();
+    img.onerror = () => { avatarMsg.textContent = 'Gambar tidak bisa dibuka. Coba file lain.'; };
+    img.onload = () => {
+      const size = 256;
+      const side = Math.min(img.width, img.height);
+      const sx = (img.width - side) / 2, sy = (img.height - side) / 2;
+      const canvas = document.createElement('canvas');
+      canvas.width = size; canvas.height = size;
+      canvas.getContext('2d').drawImage(img, sx, sy, side, side, 0, 0, size, size);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+      if (!setAvatar(me.username, dataUrl)) { avatarMsg.textContent = 'Penyimpanan browser penuh/terblokir, avatar tidak tersimpan.'; return; }
+      refreshAvatarUI();
+    };
+    img.src = reader.result;
+  };
+  reader.readAsDataURL(file);
+});
+avatarReset.addEventListener('click', () => {
+  const me = currentUser();
+  if (!me) return;
+  clearAvatar(me.username);
+  avatarMsg.textContent = '';
+  refreshAvatarUI();
+});
+
+function renderAkunList() {
+  const me = currentUser();
+  if (!me) return;
+  const users = loadUsers().filter(u => u.createdBy === me.username);
+  if (users.length === 0) {
+    akunList.innerHTML = '<div class="akun-empty">Belum ada akun yang kamu buat.</div>';
+    return;
+  }
+  akunList.innerHTML = users.map(u => {
+    let cls = 'perm', txt = 'Permanen';
+    if (u.expiresAt) {
+      if (isExpired(u)) { cls = 'expired'; txt = 'Kedaluwarsa'; }
+      else { const d = daysLeft(u); cls = d <= 5 ? 'warn' : 'left'; txt = 'Sisa ' + d + ' hari'; }
+    }
+    return `
+    <div class="akun-item${isExpired(u) ? ' is-expired' : ''}">
+      <span class="role-pill ${u.role}">${ROLE_LABEL[u.role]}</span>
+      <div class="akun-meta"><span class="akun-name">@${u.username}</span><small class="exp-pill ${cls}">${txt}</small>${u.expiresAt ? `<small class="exp-date">sampai ${fmtDate(u.expiresAt)}</small>` : ''}</div>
+      <button class="akun-del" data-del="${u.username}">Hapus</button>
+    </div>`;
+  }).join('');
+  akunList.querySelectorAll('[data-del]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const uname = btn.dataset.del;
+      let users = loadUsers();
+      users = users.filter(u => u.username !== uname);
+      saveUsers(users);
+      renderAkunList();
+    });
+  });
+}
+
+loginForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const u = document.getElementById('login-user').value.trim();
+  const p = document.getElementById('login-pass').value;
+  if (!u) { loginError.textContent = 'Isi username dulu.'; return; }
+
+  /* Akun yang sudah lewat masa aktif tidak bisa masuk, apa pun password-nya */
+  if (isExpired(findAccount(u))) { loginError.textContent = EXPIRED_MSG; return; }
+
+  /* 1. Cek password akses utama (owner/reseller/member), username bebas */
+  if (ROLE_PASSWORDS[p]) {
+    loginError.textContent = '';
+    setSession(u, ROLE_PASSWORDS[p]);
+    enterApp();
+    return;
+  }
+
+  /* 2. Cek akun khusus yang dibuat lewat menu Akun (username + password spesifik) */
+  const match = loadUsers().find(x => x.username === u && x.password === p);
+  if (match) {
+    loginError.textContent = '';
+    setSession(match.username, match.role);
+    enterApp();
+    return;
+  }
+
+  loginError.textContent = 'Username atau password salah.';
+});
+
+document.getElementById('logout-btn').addEventListener('click', () => doLogout(''));
+
+akunForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const me = currentUser();
+  if (!me) return;
+  const allowed = CAN_CREATE[me.role] || [];
+  const uname = document.getElementById('akun-user').value.trim();
+  const pass = document.getElementById('akun-pass').value.trim();
+  const role = akunRoleSelect.value;
+  akunError.textContent = '';
+  if (!uname || !pass) { akunError.textContent = 'Username dan password wajib diisi.'; return; }
+  if (!allowed.includes(role)) { akunError.textContent = 'Kamu tidak punya izin membuat role ini.'; return; }
+  const users = loadUsers();
+  if (users.some(u => u.username === uname)) { akunError.textContent = 'Username sudah dipakai.'; return; }
+  const days = Number(document.getElementById('akun-days').value);
+  const now = Date.now();
+  users.push({ username: uname, password: pass, role, createdBy: me.username, createdAt: now, expiresAt: days > 0 ? now + days * DAY_MS : null });
+  saveUsers(users);
+  document.getElementById('akun-user').value = '';
+  document.getElementById('akun-pass').value = '';
+  renderAkunList();
+});
+
+/* ---- Terapkan foto logo & banner dari CONFIG ---- */
+document.getElementById('logo-img').src = CONFIG.logoImage;
+document.getElementById('login-avatar-img').src = CONFIG.logoImage;
+document.getElementById('login-bg-img').src = CONFIG.logoImage;
+
+/* ---- Tombol mata: tampil/sembunyikan password ---- */
+(function(){
+  const eye = document.getElementById('login-eye');
+  const pass = document.getElementById('login-pass');
+  eye.addEventListener('click', () => {
+    const show = pass.type === 'password';
+    pass.type = show ? 'text' : 'password';
+    eye.textContent = show ? '🙈' : '👁️';
+    eye.setAttribute('aria-label', show ? 'Sembunyikan password' : 'Tampilkan password');
+  });
+})();
+document.getElementById('banner-img').src = CONFIG.bannerImage;
+
+/* ---- Render Toko Script dari CONFIG.scripts ---- */
+const shopGrid = document.getElementById('shop-grid');
+const payModal = document.getElementById('pay-modal');
+const payScriptName = document.getElementById('pay-script-name');
+const payScriptPrice = document.getElementById('pay-script-price');
+const payQrisImg = document.getElementById('pay-qris-img');
+const payConfirmBtn = document.getElementById('pay-confirm-btn');
+
+function renderShop() {
+  shopGrid.innerHTML = CONFIG.scripts.map((s, i) => `
+    <div class="shop-card">
+      <div class="shop-thumb"><img src="${s.foto}" alt="${s.nama}"></div>
+      <div class="shop-info">
+        <div class="shop-name">${s.nama}</div>
+        <div class="shop-desc">${s.deskripsi}</div>
+        <div class="shop-bottom">
+          <span class="shop-price">${s.harga}</span>
+          <button class="shop-buy" data-buy="${i}">BELI</button>
+        </div>
+      </div>
+    </div>`).join('');
+
+  shopGrid.querySelectorAll('[data-buy]').forEach(btn => {
+    btn.addEventListener('click', () => openPayModal(CONFIG.scripts[Number(btn.dataset.buy)]));
+  });
+}
+renderShop();
+
+function openPayModal(script) {
+  payScriptName.textContent = script.nama;
+  payScriptPrice.textContent = script.harga;
+  payQrisImg.src = CONFIG.qrisImage;
+  payModal.classList.add('show');
+  payConfirmBtn.onclick = () => {
+    window.open(CONFIG.telegramBukti, '_blank', 'noopener');
+  };
+}
+document.getElementById('pay-close').addEventListener('click', () => payModal.classList.remove('show'));
+payModal.addEventListener('click', (e) => { if (e.target === payModal) payModal.classList.remove('show'); });
+
+/* Jika sudah ada sesi login tersimpan, langsung masuk */
+loadUsers();
+if (getSession() && currentUser()) {
+  if (isExpired(findAccount(currentUser().username))) { clearSession(); loginError.textContent = EXPIRED_MSG; }
+  else enterApp();
+}
+setInterval(enforceExpiry, 30000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) enforceExpiry(); });
+
+/* ---- 1. Navigasi tab bawah ---- */
+const navItems = document.querySelectorAll('.nav-item');
+const panels = document.querySelectorAll('.tab-panel');
+navItems.forEach(btn => {
+  btn.addEventListener('click', () => {
+    navItems.forEach(b => b.setAttribute('aria-selected', 'false'));
+    btn.setAttribute('aria-selected', 'true');
+    panels.forEach(p => p.classList.remove('is-active'));
+    document.getElementById(btn.dataset.tab).classList.add('is-active');
+  });
+});
+
+/* ---- 2. Tombol api melayang (Badakin & Banding) ---- */
+const btnBadakin = document.getElementById('btn-badakin');
+const btnBanding = document.getElementById('btn-banding');
+const slotBadakin = document.getElementById('slot-badakin');
+const slotBanding = document.getElementById('slot-banding');
+const fireBtns = [btnBadakin, btnBanding];
+let busy = false;
+btnBadakin.addEventListener('click', () => startProcess('badakin'));
+btnBanding.addEventListener('click', () => startProcess('banding'));
+
+/* ---- 3. Validasi format nomor (home) ---- */
+const targetInput = document.getElementById('target-input');
+const targetWrap = document.getElementById('target-wrap');
+const targetMsg = document.getElementById('target-msg');
+let targetValid = false;
+
+targetInput.addEventListener('input', () => {
+  const v = targetInput.value.trim();
+  const isValid = /^\+?\d{8,15}$/.test(v);
+  targetValid = isValid && v.length > 0;
+  targetWrap.classList.toggle('valid', targetValid);
+  targetWrap.classList.toggle('invalid', v.length > 0 && !targetValid);
+  if (v.length === 0) { targetMsg.textContent = ''; targetMsg.className = 'target-msg'; }
+  else if (targetValid) { targetMsg.textContent = 'Format nomor valid'; targetMsg.className = 'target-msg ok'; }
+  else { targetMsg.textContent = 'Format nomor belum sesuai'; targetMsg.className = 'target-msg bad'; }
+  updateRunButton();
+});
+
+/* ---- 4. Pilih kartu payload ---- */
+const payloadCards = document.querySelectorAll('.payload-card');
+const payloadCount = document.getElementById('payload-count');
+let selectedPayload = payloadCards[0];
+
+payloadCards.forEach((card, i) => {
+  card.addEventListener('click', () => {
+    payloadCards.forEach(c => {
+      c.classList.remove('active'); c.classList.add('idle');
+      c.querySelector('.payload-status').textContent = 'SIAGA';
+      c.querySelector('.payload-status').className = 'payload-status off';
+    });
+    card.classList.remove('idle'); card.classList.add('active');
+    card.querySelector('.payload-status').textContent = 'AKTIF';
+    card.querySelector('.payload-status').className = 'payload-status on';
+    selectedPayload = card;
+    payloadCount.textContent = String(i + 1).padStart(2, '0') + ' / 03';
+  });
+});
+
+/* ---- 5. Tombol jalankan + log simulasi (home) ---- */
+function updateRunButton() {
+  [slotBadakin, slotBanding].forEach(sl => sl.classList.toggle('locked', !targetValid));
+}
+const consoleScreen = document.getElementById('console-screen');
+const livePill = document.getElementById('live-pill');
+const liveText = document.getElementById('live-text');
+const consoleSub = document.getElementById('console-sub');
+
+function timeNow() {
+  const d = new Date();
+  const p = n => String(n).padStart(2, '0');
+  return `${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+}
+function addLine(type, text) {
+  const tagMap = { ok: '[✓]', info: '[i]', warn: '[!]', err: '[x]' };
+  const line = document.createElement('div');
+  line.className = 'console-line';
+  line.innerHTML = `<span class="console-time">${timeNow()}</span> <span class="console-${type}">${tagMap[type]}</span> ${text}`;
+  consoleScreen.appendChild(line);
+  consoleScreen.scrollTop = consoleScreen.scrollHeight;
+}
+/* ---- Panel proses (ESSER ENGINE) ---- */
+const procCard = document.getElementById('proc-card');
+const procPill = document.getElementById('proc-pill');
+const procPillText = document.getElementById('proc-pill-text');
+const procSub = document.getElementById('proc-sub');
+const procPct = document.getElementById('proc-pct');
+const procTime = document.getElementById('proc-time');
+const procSteps = document.getElementById('proc-steps');
+const procSegs = document.getElementById('proc-segs');
+const procResult = document.getElementById('proc-result');
+const ringFill = document.getElementById('proc-ring-fill');
+const mJob = document.getElementById('m-job');
+const mStep = document.getElementById('m-step');
+const mTarget = document.getElementById('m-target');
+const RING_LEN = 2 * Math.PI * 42;
+
+const FLOWS = {
+  badakin: { label: 'Badakin', steps: [
+    { title: 'Validasi nomor target', done: t => `${t} terverifikasi`, ms: 900 },
+    { title: 'Memuat payload', done: (t, n) => `${n} siap dipakai`, ms: 1100 },
+    { title: 'Menyiapkan sesi', done: () => 'Sesi siap', ms: 1000 },
+    { title: 'Menjalankan penguatan', done: () => 'Penguatan selesai', ms: 1700 },
+    { title: 'Verifikasi hasil', done: () => 'Hasil terverifikasi', ms: 900 },
+  ]},
+  banding: { label: 'Banding', steps: [
+    { title: 'Validasi nomor target', done: t => `${t} terverifikasi`, ms: 900 },
+    { title: 'Menyusun berkas banding', done: (t, n) => `Berkas untuk ${n} siap`, ms: 1300 },
+    { title: 'Mengantre pengajuan', done: () => 'Masuk antrian', ms: 1100 },
+    { title: 'Menunggu konfirmasi antrian', done: () => 'Antrian dikonfirmasi', ms: 1500 },
+    { title: 'Verifikasi pengajuan', done: () => 'Pengajuan terverifikasi', ms: 900 },
+  ]},
+};
+
+function fmtTime(ms) {
+  const t = Math.max(0, ms);
+  const m = Math.floor(t / 60000), sec = Math.floor((t % 60000) / 1000), d = Math.floor((t % 1000) / 100);
+  return String(m).padStart(2, '0') + ':' + String(sec).padStart(2, '0') + '.' + d;
+}
+function maskNum(v) {
+  const d = v.replace(/\s/g, '');
+  if (d.length <= 8) return d;
+  return d.slice(0, d[0] === '+' ? 5 : 4) + '••••' + d.slice(-3);
+}
+function setPill(cls, text) { procPill.className = 'proc-pill ' + cls; procPillText.textContent = text; }
+function setRing(pct) { ringFill.style.strokeDashoffset = RING_LEN * (1 - pct / 100); }
+function renderSteps(flow) {
+  procSteps.innerHTML = flow.steps.map((st, i) => `
+    <li class="proc-step pending"><span class="step-dot">${i + 1}</span><div><b>${st.title}</b><small>Menunggu</small></div><em class="step-dur"></em></li>`).join('');
+  procSegs.innerHTML = flow.steps.map(() => '<i><u></u></i>').join('');
+  mStep.textContent = `0 / ${flow.steps.length}`;
+}
+function setStepState(i, state, text, dur) {
+  const li = procSteps.children[i];
+  if (!li) return;
+  li.className = 'proc-step ' + state;
+  li.querySelector('.step-dot').textContent = state === 'done' ? '✓' : (state === 'active' ? '' : String(i + 1));
+  li.querySelector('small').textContent = text;
+  li.querySelector('.step-dur').textContent = dur || '';
+}
+renderSteps(FLOWS.badakin);
+setRing(0);
+
+function nudgeTarget() {
+  targetWrap.classList.remove('shake');
+  void targetWrap.offsetWidth;
+  targetWrap.classList.add('shake');
+  targetMsg.textContent = 'Isi nomor target dulu sebelum menjalankan';
+  targetMsg.className = 'target-msg bad';
+  targetInput.focus({ preventScroll: true });
+  targetWrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+async function copyText(text) {
+  try { await navigator.clipboard.writeText(text); return true; } catch {}
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    const ok = document.execCommand('copy');
+    ta.remove();
+    return ok;
+  } catch { return false; }
+}
+
+function buildResult(kind, target, name, total, job, startedAt) {
+  const h = hashNum(target + kind);
+  const extra = kind === 'badakin' ? [
+    ['Skor kestabilan sebelum', `${40 + (h % 30)}/100`],
+    ['Skor kestabilan sesudah', `${75 + (h % 20)}/100`],
+  ] : [
+    ['Status pengajuan', 'Masuk antrian'],
+    ['Perkiraan diproses', `${(h % 3) + 1}–${(h % 3) + 3} hari kerja`],
+  ];
+  const rows = [
+    ['ID Job', job],
+    ['Target', maskNum(target)],
+    ['Payload', name],
+    ...extra,
+    ['Mulai', startedAt],
+    ['Durasi', fmtTime(total)],
+  ];
+  return `
+    <div class="res-head"><span class="res-badge">BERHASIL</span><span>${FLOWS[kind].label}</span></div>
+    <dl class="res-list">${rows.map(r => `<div><dt>${r[0]}</dt><dd>${r[1]}</dd></div>`).join('')}</dl>
+    <div class="res-actions">
+      <button type="button" data-act="copy" data-job="${job}">Salin ID</button>
+      <button type="button" data-act="again" data-kind="${kind}">Ulangi</button>
+    </div>`;
+}
+procResult.addEventListener('click', async (e) => {
+  const b = e.target.closest('button[data-act]');
+  if (!b) return;
+  if (b.dataset.act === 'again') { startProcess(b.dataset.kind); return; }
+  const ok = await copyText(b.dataset.job);
+  b.textContent = ok ? 'Tersalin' : 'Gagal salin';
+  setTimeout(() => { b.textContent = 'Salin ID'; }, 1500);
+});
+
+function startProcess(kind) {
+  if (busy) return;
+  if (enforceExpiry()) return;
+  if (!targetValid) { nudgeTarget(); return; }
+  busy = true;
+
+  const flow = FLOWS[kind];
+  const N = flow.steps.length;
+  const target = targetInput.value.trim();
+  const name = selectedPayload.dataset.name;
+  const job = 'ES-' + (100000 + (hashNum(target + kind) % 900000));
+  const startedAt = timeNow();
+  const slotOn = kind === 'badakin' ? slotBadakin : slotBanding;
+  const slotOff = kind === 'badakin' ? slotBanding : slotBadakin;
+  const subOn = slotOn.querySelector('small');
+  const subOrig = subOn.textContent;
+
+  slotOn.classList.add('running');
+  slotOff.classList.add('dim');
+  fireBtns.forEach(b => { b.disabled = true; });
+
+  procCard.classList.toggle('kind-banding', kind === 'banding');
+  renderSteps(flow);
+  setRing(0);
+  procPct.textContent = '0%';
+  procTime.textContent = fmtTime(0);
+  mJob.textContent = job;
+  mTarget.textContent = maskNum(target);
+  procResult.classList.remove('show');
+  procResult.innerHTML = '';
+  procCard.classList.add('is-running');
+  setPill('run', 'BERJALAN');
+  livePill.classList.remove('off'); livePill.classList.add('on');
+  liveText.textContent = 'LIVE';
+  consoleSub.textContent = `Menjalankan ${flow.label}…`;
+  addLine('info', `${job}: ${flow.label} dimulai untuk ${name}, target ${maskNum(target)}`);
+  procCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+  const total = flow.steps.reduce((a, st) => a + st.ms, 0);
+  const starts = [];
+  flow.steps.reduce((a, st) => { starts.push(a); return a + st.ms; }, 0);
+  const t0 = performance.now();
+  let cur = -1;
+
+  function completeStep(i) {
+    const detail = flow.steps[i].done(target, name);
+    setStepState(i, 'done', detail, (flow.steps[i].ms / 1000).toFixed(1) + ' dtk');
+    procSegs.children[i].firstChild.style.width = '100%';
+    addLine('ok', detail);
+  }
+
+  function frame(now) {
+    const el = Math.min(now - t0, total);
+    let idx = N;
+    for (let i = 0; i < N; i++) { if (el < starts[i] + flow.steps[i].ms) { idx = i; break; } }
+
+    if (idx !== cur) {
+      for (let j = Math.max(cur, 0); j < idx; j++) completeStep(j);
+      if (idx < N) {
+        setStepState(idx, 'active', 'Sedang diproses…');
+        addLine('info', flow.steps[idx].title);
+        procSub.textContent = `${flow.label}: ${flow.steps[idx].title}`;
+      }
+      cur = idx;
+    }
+    if (idx < N) {
+      const part = (el - starts[idx]) / flow.steps[idx].ms;
+      procSegs.children[idx].firstChild.style.width = Math.round(part * 100) + '%';
+    }
+
+    const pct = Math.min(100, (el / total) * 100);
+    setRing(pct);
+    procPct.textContent = Math.floor(pct) + '%';
+    procTime.textContent = fmtTime(el);
+    mStep.textContent = `${Math.min(idx + 1, N)} / ${N}`;
+    subOn.textContent = Math.floor(pct) + '%';
+
+    if (el < total) { requestAnimationFrame(frame); return; }
+
+    /* selesai */
+    procCard.classList.remove('is-running');
+    setPill('done', 'SELESAI');
+    procSub.textContent = `${flow.label} selesai`;
+    mStep.textContent = `${N} / ${N}`;
+    procResult.innerHTML = buildResult(kind, target, name, total, job, startedAt);
+    procResult.classList.add('show');
+    setTimeout(() => procResult.scrollIntoView({ behavior: 'smooth', block: 'center' }), 120);
+    addLine('ok', `${job}: ${flow.label} selesai dalam ${fmtTime(total)}`);
+    consoleSub.textContent = 'Idle';
+    livePill.classList.remove('on'); livePill.classList.add('off');
+    liveText.textContent = 'OFFLINE';
+    subOn.textContent = subOrig;
+    slotOn.classList.remove('running');
+    slotOff.classList.remove('dim');
+    fireBtns.forEach(b => { b.disabled = false; });
+    busy = false;
+  }
+  requestAnimationFrame(frame);
+}
+document.getElementById('clear-btn').addEventListener('click', () => {
+  consoleScreen.innerHTML = '';
+  addLine('info', 'Log dibersihkan');
+});
+
+/* ---- 6. Accordion + hasil simulasi untuk Nomor Tools ---- */
+function hashNum(str) {
+  let h = 0;
+  for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) >>> 0;
+  return h;
+}
+const resultBuilders = {
+  cek: (num, h) => [
+    ['Status akun', h % 2 === 0 ? 'Terdaftar aktif' : 'Terdaftar, jarang aktif'],
+    ['Tipe akun', h % 3 === 0 ? 'WhatsApp Business' : 'WhatsApp Reguler'],
+    ['Terakhir update foto', `${(h % 12) + 1} bulan lalu`],
+  ],
+  umur: (num, h) => [
+    ['Perkiraan umur nomor', `${(h % 4) + 1} tahun ${(h % 11) + 1} bulan`],
+    ['Tingkat kepercayaan estimasi', `${60 + (h % 35)}%`],
+  ],
+  kuat: (num, h) => [
+    ['Skor kestabilan sebelum', `${40 + (h % 30)}/100`],
+    ['Skor kestabilan sesudah', `${75 + (h % 20)}/100`],
+    ['Status', 'Proses penguatan simulasi selesai'],
+  ],
+  banding: (num, h) => [
+    ['Status pengajuan', 'Terkirim ke antrian simulasi'],
+    ['Perkiraan diproses', `${(h % 3) + 1}–${(h % 3) + 3} hari kerja`],
+  ],
+  batasi: (num, h) => [
+    ['Status pengajuan', 'Terkirim ke antrian simulasi'],
+    ['Catatan', 'Pencabutan batasan tunduk kebijakan platform terkait'],
+  ],
+};
+document.querySelectorAll('[data-tool]').forEach(card => {
+  const head = card.querySelector('.tool-head');
+  const input = card.querySelector('.tool-input');
+  const goBtn = card.querySelector('.tool-go');
+  const resultBox = card.querySelector('[data-result-box]');
+  const resultType = goBtn.dataset.result;
+
+  head.addEventListener('click', () => card.classList.toggle('open'));
+
+  goBtn.addEventListener('click', () => {
+    const v = input.value.trim();
+    if (!/^\+?\d{8,15}$/.test(v)) {
+      resultBox.classList.add('show');
+      resultBox.innerHTML = `<div class="tool-result-row"><span>Status</span><b style="color:#b91c1c">Format nomor belum sesuai</b></div>`;
+      return;
+    }
+    goBtn.disabled = true;
+    goBtn.textContent = '...';
+    setTimeout(() => {
+      const h = hashNum(v);
+      const rows = resultBuilders[resultType](v, h);
+      resultBox.innerHTML = rows.map(r => `<div class="tool-result-row"><span>${r[0]}</span><b>${r[1]}</b></div>`).join('')
+        + `<div class="tool-note">Selesai.</div>`;
+      resultBox.classList.add('show');
+      goBtn.disabled = false;
+      goBtn.textContent = goBtn.dataset.result === 'cek' || goBtn.dataset.result === 'umur' ? 'CEK' : (goBtn.dataset.result === 'kuat' ? 'PROSES' : 'AJUKAN');
+    }, 700);
+  });
+});
+</script>
+</body>
+</html>
